@@ -168,7 +168,7 @@ export function TodayScreen({ goto, showSchedule, setShowSchedule }: { goto: Got
       ) : null}
 
       <section className="card" aria-labelledby="meteo-h" data-testid="weather-card">
-        <div className="row between">
+        <div className="row between wrap">
           <h2 id="meteo-h">Meteo (Rifugio, ≈{TRIP_CONFIG.weather.elevationM} m)</h2>
           <button className="btn ghost small" onClick={a.refreshWeather} disabled={!online || weather.status === 'loading'} aria-label="Aggiorna il meteo">
             <Icon name="refresh" /> Aggiorna

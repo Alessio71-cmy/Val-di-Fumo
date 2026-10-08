@@ -129,16 +129,38 @@ test('movimento ridotto: nessuna transizione se il sistema lo chiede; informazio
   for (let i = 0; i < n; i++) expect((await badges.nth(i).innerText()).trim().length).toBeGreaterThan(2);
 });
 
-test('dimensione del testo "molto grande" (130 %): nessun overflow orizzontale su 320 px', async ({ page }) => {
+test('dimensione del testo "molto grande" (130 %) con font diversi: nessun overflow orizzontale su 320 px e barre di navigazione non tagliate', async ({ page }) => {
+  // Il font di sistema cambia da macchina a macchina (sul runner di GitHub `system-ui` è più largo che sul mio ambiente): si provano più famiglie,
+  // anche molto larghe, per non dipendere da quella disponibile. Se una famiglia manca il browser ripiega su un'altra: il test resta valido.
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 320, height: 568 });
   await openApp(page);
   await tab(page, 'sicurezza');
   await page.locator('details#sec-look summary').click();
   await page.getByRole('button', { name: 'Molto grande' }).click();
-  for (const t of ['oggi', 'percorso', 'esplora', 'sicurezza'] as const) {
-    await tab(page, t);
-    if (t === 'sicurezza') await openAllFolds(page);
-    const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-    expect(over, `${t}: overflow orizzontale ${over}px`).toBeLessThanOrEqual(0);
+  const problems: string[] = [];
+  for (const font of [null, 'DejaVu Sans', 'DejaVu Serif', 'DejaVu Sans Mono', 'Liberation Sans']) {
+    await page.evaluate((f) => {
+      if (f) document.documentElement.style.setProperty('--font', `"${f}", sans-serif`);
+      else document.documentElement.style.removeProperty('--font');
+    }, font);
+    for (const t of ['oggi', 'percorso', 'esplora', 'sicurezza'] as const) {
+      await tab(page, t);
+      if (t === 'sicurezza') await openAllFolds(page);
+      const r = await page.evaluate(() => {
+        const doc = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+        const bar = document.querySelector('.tabbar') as HTMLElement;
+        const top = document.querySelector('.topbar') as HTMLElement;
+        const labels = Array.from(bar.querySelectorAll('button')).filter((b) => b.scrollWidth > b.clientWidth + 0.5).map((b) => b.textContent);
+        const vw = document.documentElement.clientWidth;
+        const wide = Array.from(document.querySelectorAll<HTMLElement>('main *'))
+          .filter((el) => !el.closest('.maplibregl-canvas') && el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().right > vw + 0.5)
+          .slice(0, 3)
+          .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 24)} "${(el.textContent ?? '').trim().slice(0, 28)}"`);
+        return { doc, tabbar: bar.scrollWidth - bar.clientWidth, topbar: top.scrollWidth - top.clientWidth, labels, wide };
+      });
+      if (r.doc > 0 || r.tabbar > 0 || r.topbar > 0 || r.labels.length) problems.push(`${font ?? 'font di sistema'} / ${t}: documento +${r.doc}px, barra schede +${r.tabbar}px, barra alta +${r.topbar}px, etichette tagliate [${r.labels.join(', ')}], elementi oltre il bordo [${r.wide.join(' | ')}]`);
+    }
   }
+  expect(problems, problems.join('\n')).toEqual([]);
 });

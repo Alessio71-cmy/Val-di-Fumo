@@ -57,10 +57,24 @@ async function audit(page: Page, label: string) {
   }, label);
 }
 
+// stessa verifica con il font di sistema e con uno più largo (DejaVu Sans, il tipico `system-ui` dei runner Linux)
 for (const size of SIZES) {
-  test(`${size.name}: nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato`, async ({ page }) => {
+  test(`${size.name}: nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato (font di sistema e DejaVu Sans)`, async ({ page }) => {
+    test.setTimeout(120_000);
     await page.setViewportSize({ width: size.width, height: size.height });
     await openApp(page);
+    for (const font of [null, 'DejaVu Sans'] as const) {
+      await page.evaluate((f) => {
+        if (f) document.documentElement.style.setProperty('--font', `"${f}", sans-serif`);
+        else document.documentElement.style.removeProperty('--font');
+      }, font);
+      await runSizeAudit(page, size, font);
+    }
+  });
+}
+
+async function runSizeAudit(page: Page, size: { name: string; width: number; height: number }, font: string | null) {
+  {
     fs.mkdirSync(SHOTS, { recursive: true });
     const all: string[] = [];
     for (const t of ['oggi', 'mappa', 'percorso', 'esplora', 'sicurezza'] as const) {
@@ -68,11 +82,11 @@ for (const size of SIZES) {
       if (t === 'mappa') await expect(page.getByTestId('gl-map')).toHaveAttribute('data-ready', '1', { timeout: 30_000 });
       if (t === 'sicurezza') await page.evaluate(() => document.querySelectorAll('details').forEach((d) => (d.open = true)));
       await page.waitForTimeout(150);
-      all.push(...(await audit(page, `${size.name} / ${t}`)));
-      await page.screenshot({ path: path.join(SHOTS, `${size.width}x${size.height}-${t}.png`), fullPage: false });
+      all.push(...(await audit(page, `${size.name} / ${font ?? 'font di sistema'} / ${t}`)));
+      if (!font) await page.screenshot({ path: path.join(SHOTS, `${size.width}x${size.height}-${t}.png`), fullPage: false });
     }
     expect(all, all.join('\n')).toEqual([]);
-  });
+  }
 }
 
 test('320×568: l’azione principale di "Oggi" è visibile senza scorrere e i tre indicatori della mappa non si sovrappongono', async ({ page }) => {
