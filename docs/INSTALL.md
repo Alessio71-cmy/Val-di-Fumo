@@ -8,7 +8,7 @@ Guida per chi parteciperà all'escursione. **Non serve nessun account, nessuna c
 
 ## Cosa serve
 
-- L'**indirizzo https** dell'app (te lo manda chi la pubblica; vedi [DEPLOY.md](DEPLOY.md)).
+- L'**indirizzo https** dell'app: **https://val-di-fumo.vercel.app** (se chi la pubblica te ne ha mandato un altro, usa quello; vedi [DEPLOY.md](DEPLOY.md)).
 - Una connessione Wi-Fi (meglio) o dati mobili **a casa**, il giorno prima: il pacchetto pesa circa **3,6 MB** (di cui 2,1 MB di mappa).
 - Circa 10 MB liberi, un iPhone con iOS recente (Safari) oppure un Android con Chrome recente. **L'app non è stata provata su iPhone né su un telefono reale** (vedi [TEST-REPORT.md](TEST-REPORT.md)): se sul tuo dispositivo la mappa dettagliata non si apre, l'app passa da sola alla mappa schematica e lo dichiara.
 

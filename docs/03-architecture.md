@@ -72,7 +72,7 @@ Le coordinate non compaiono mai nei testi: `src/content` fa riferimento ai punti
 
 ## 6. Distribuzione
 
-Build statica (`npm run build` → `dist/`), `base: './'` (funziona in qualsiasi sottocartella), workflow GitHub Pages incluso (`.github/workflows/pages.yml`, richiede di abilitare Pages con sorgente *GitHub Actions*) e istruzioni per hosting equivalenti (Netlify, Vercel, Cloudflare Pages). HTTPS è indispensabile per service worker e geolocalizzazione.
+Build statica (`npm run build` → `dist/`), `base: './'` (funziona in qualsiasi sottocartella), workflow GitHub Pages incluso (`.github/workflows/pages.yml`, richiede di abilitare Pages con sorgente *GitHub Actions*) e istruzioni per hosting equivalenti (Netlify, Cloudflare Pages; Vercel con `vercel.json` incluso, dove l'app è pubblicata). HTTPS è indispensabile per service worker e geolocalizzazione.
 
 ## 7. Rischi tecnici noti
 

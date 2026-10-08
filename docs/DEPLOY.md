@@ -1,6 +1,8 @@
 # Pubblicazione su hosting HTTPS e condivisione del link
 
-> **Stato:** nulla è stato pubblicato. Il repository contiene tutto il necessario (build statica, workflow, intestazioni consigliate), ma **pubblicare rende l'app visibile a chiunque abbia il link**: è una decisione del titolare del repository.
+> **Stato (8 ottobre 2026): l'app è pubblicata su Vercel all'indirizzo https://val-di-fumo.vercel.app.** Progetto `val-di-fumo` nell'account Vercel del titolare, collegato a questo repository; distribuzione di produzione dal commit `3f692c1`, ID di versione dell'app `5c6971c70025`. **Chiunque abbia il link dovrebbe poterla aprire** (nessuna password, vedi sotto cosa non è verificato); le anteprime e gli indirizzi delle singole distribuzioni sono impostati come protetti dal login Vercel.
+>
+> **Non è stata provata dal vivo da chi l'ha pubblicata**: la rete dell'ambiente di sviluppo blocca `*.vercel.app`. Verificato soltanto che la distribuzione è «READY» e che ricompilando da zero il commit pubblicato (`npm ci` + `npm run build`, Node 22) si ottengono esattamente i file provati dai test (stesso ID di versione, 0 file diversi). **Non verificati:** le intestazioni HTTP servite (CSP, cache), che l'indirizzo sia davvero aperto senza login Vercel, l'installazione e l'uso offline sull'indirizzo reale. Fare i controlli del paragrafo «Controlli dopo la pubblicazione» **da un telefono non collegato a Vercel**.
 
 L'app è **statica**: nessun server applicativo, nessuna chiave, nessun database, nessun account. Serve solo un hosting che consegni i file in `dist/` via **HTTPS** (indispensabile per service worker e geolocalizzazione).
 
@@ -32,7 +34,7 @@ Il file `vercel.json` è **già incluso**: imposta la compilazione (Vite, `npm c
 
 - Collegando il repository a un progetto Vercel (preset Vite, nessuna variabile d'ambiente), ogni push sul ramo di produzione pubblica una nuova versione: **dal giorno prima dell'escursione in poi evitare push che cambiano il codice** (ogni nuova versione obbliga a ripetere *Prepara il viaggio*). Le modifiche ai soli documenti non cambiano `dist/` e quindi nemmeno l'ID di versione dell'app.
 - In alternativa, dalla propria macchina: `npm run build && npx vercel deploy --prod` (la CLI usa `vercel.json`).
-- Se il progetto ha la protezione per le anteprime (impostazione predefinita), l'indirizzo **di produzione** (`<progetto>.vercel.app`) è pubblico, ma gli indirizzi delle singole distribuzioni e delle anteprime chiedono l'accesso a Vercel: agli amici va mandato **solo** l'indirizzo di produzione.
+- **Protezione:** il progetto `val-di-fumo` è nato con la protezione predefinita dell'account («tutte le distribuzioni tranne i domini personalizzati»), che senza un dominio personalizzato **dovrebbe chiedere il login Vercel anche sull'indirizzo di produzione**. È stata portata a *Standard Protection* (API: `prod_deployment_urls_and_all_previews`): l'indirizzo di produzione `val-di-fumo.vercel.app` dovrebbe essere pubblico, mentre gli indirizzi delle singole distribuzioni e delle anteprime chiedono l'accesso a Vercel. **Da confermare aprendo il link da un telefono:** se compare una pagina di accesso a Vercel, impostare *Settings → Deployment Protection → Vercel Authentication* su «Standard Protection» (o «Only Preview Deployments»). Agli amici va mandato **solo** `https://val-di-fumo.vercel.app`.
 
 ## Opzione D — qualsiasi server (nginx, Apache…)
 

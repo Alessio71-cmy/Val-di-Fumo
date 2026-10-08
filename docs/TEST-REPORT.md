@@ -6,6 +6,7 @@
 >
 > - **Test automatici: 177 unitari + 67 end-to-end, tutti superati** (dipendenze installate con `npm ci` dal lockfile; suite E2E eseguita in locale 3 volte di fila sull'ultima versione: 67/67 ogni volta, nessun test instabile; e **una volta sulla CI di GitHub**, runner Ubuntu: 67/67).
 > - **La CI di GitHub ha trovato un difetto che nel mio ambiente non si vedeva**: layout fragile con font di sistema larghi (un solo test falliva, sempre lo stesso, in cinque esecuzioni consecutive). Corretto e riprovato (§6): prima di allora "tutti superati" valeva solo per il mio ambiente.
+> - **L'app è pubblicata su Vercel (https://val-di-fumo.vercel.app) ma non l'ho potuta aprire da qui** (rete bloccata): i controlli «dopo la pubblicazione» di [DEPLOY.md](DEPLOY.md) vanno fatti da un telefono.
 > - **Nessun test su dispositivo fisico è stato eseguito.** Non c'erano iPhone, secondo telefono, modalità aereo reale né GPS reale. Quindi i test obbligatori n. **2** (installazione su iPhone) e n. **3** (secondo dispositivo) sono **NON ESEGUITI**, e i n. **5, 6, 9** sono solo **SIMULATI** su Chromium.
 > - Il browser provato è **solo Chromium** (Playwright). **Safari/WebKit (iPhone) e Firefox non sono stati provati.**
 > - Il meteo (Open-Meteo) **non è stato provato dal vivo** (host bloccato dall'ambiente); la risposta è simulata.
@@ -42,7 +43,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 
 | # | Test obbligatorio | Categoria | Esito | Dove / come | Cosa **non** prova |
 |---|---|---|---|---|---|
-| 1 | Apertura dell'app online | AUTOMATICO | **Superato** | Tutte le specifiche E2E aprono la build di produzione; `a11y`, `content`, `pwa`. | Apertura da un telefono reale e da un URL pubblico (nulla è pubblicato). |
+| 1 | Apertura dell'app online | AUTOMATICO | **Superato** | Tutte le specifiche E2E aprono la build di produzione; `a11y`, `content`, `pwa`. | Apertura da un telefono reale e dall'URL pubblico `val-di-fumo.vercel.app`: l'app è pubblicata ma da qui l'indirizzo è bloccato, quindi **non è stato aperto né provato**. |
 | 2 | Installazione su iPhone | — | **NON ESEGUITO** | Verificati in automatico solo manifest valido, icone con le dimensioni dichiarate, meta iOS, testi di guida (UA iPhone emulato). `pwa.spec.ts` | Qualsiasi comportamento di iOS/Safari: "Aggiungi alla schermata Home", memoria separata, service worker su WebKit. |
 | 3 | Installazione su un secondo dispositivo | — | **NON ESEGUITO** | Lo stato offline è per dispositivo (IndexedDB e Cache Storage locali): un contesto browser vergine parte sempre da "non pronto" (`pwa.spec.ts`). | Un secondo telefono vero. |
 | 4 | Download delle risorse offline | AUTOMATICO | **Superato** | "Prepara il viaggio" scarica 28 risorse (3,6 MB), rilegge dalla cache e confronta dimensione e SHA-256; la cache contiene davvero le risorse del manifest. `offline.spec.ts`, `pwa.spec.ts`; logica con cache finta in `offline.test.ts` (17 test: corruzione, hash con stessa dimensione, 404, pulizia versioni, stati). | Rete mobile reale, spazio insufficiente, interruzioni a metà download. |
@@ -72,7 +73,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | Raggiungere Malga Bissina in auto | **Parzialmente** | Link alla navigazione stradale con le coordinate dei dati; accesso, tariffe e regolazione del Parco **non verificati** per ottobre 2026. |
 | Seguire il percorso escursionistico **verificato** fino al Rifugio Val di Fumo | **NON soddisfatto nel senso pieno** | Il percorso è mostrato e misurato, ma è **derivato da OpenStreetMap, non verificato sul campo né confrontato con la traccia SAT**: stato `source-derived`, dichiarato ovunque. |
 | Tornare al parcheggio | **Soddisfatto** (software) | Ritorno sulla stessa traccia o variante; "Torna al parcheggio"; ora limite sempre in vista. |
-| Semplice da installare e condividere | **Non dimostrato** | PWA con manifest e istruzioni; **nulla è pubblicato** e l'installazione su iPhone/Android **non è stata provata su dispositivi**. |
+| Semplice da installare e condividere | **Non dimostrato** | PWA con manifest e istruzioni; **pubblicata su Vercel, ma l'indirizzo pubblico non è stato aperto da chi l'ha creata** (rete bloccata) e l'installazione su iPhone/Android **non è stata provata su dispositivi**. |
 | Funzionare senza connessione dopo un download completo e verificato | **Soddisfatto in simulazione (Chromium)** | Non provato su telefoni reali. |
 | Indicazioni affidabili, fonti consultabili, limiti espliciti, informazioni utili alla sicurezza | **Parzialmente** | Fonti registrate con stato di accesso (le quattro iniziali **non lette**), limiti espliciti in app e documenti, guida di emergenza; l'affidabilità è quella dei dati OSM e delle fonti secondarie. |
 
@@ -113,7 +114,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 3. **Traccia e luoghi non verificati sul campo** né confrontati con fonti ufficiali; i test confrontano l'app con i dati della pipeline e con misure secondarie, non con il terreno.
 4. **Meteo dal vivo non provato**; **link esterni** (navigazione stradale) solo come costruzione degli indirizzi.
 5. **Accessibilità**: nessun lettore di schermo reale.
-6. **Hosting**: nessuna pubblicazione; il workflow `pages.yml` non è mai stato eseguito (richiede il ramo `main` e l'attivazione di GitHub Pages). Il workflow `ci.yml` è stato eseguito su GitHub (vedi §3).
+6. **Hosting**: l'app è pubblicata su Vercel (`https://val-di-fumo.vercel.app`, commit `3f692c1`), ma **nessuna prova è stata eseguita sull'indirizzo pubblico**: da qui `*.vercel.app` è bloccato. Verificato solo: distribuzione «READY» e ricompilazione da zero del commit con lo stesso ID di versione dei file provati (`5c6971c70025`). **Non verificati:** intestazioni HTTP servite (CSP, cache), accesso pubblico senza login Vercel, installazione e modalità offline sull'indirizzo reale. Il workflow `pages.yml` non è mai stato eseguito; `ci.yml` sì (vedi §3).
 7. **Carico e durata**: nessuna prova di uso prolungato con GPS attivo per ore.
 8. **Fuso orario/data**: provato con orologio finto al 9/10/2026; nessuna prova con data diversa dalla configurazione.
 

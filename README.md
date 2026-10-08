@@ -97,4 +97,4 @@ I dati geografici in `public/data` e `data/source` derivano da **OpenStreetMap (
 
 ### Pubblicazione
 
-Build statica con `base: './'` (funziona in qualsiasi sottocartella). Workflow GitHub Pages incluso in `.github/workflows/pages.yml` — **non è stato eseguito né pubblicato nulla**: istruzioni e alternative in [docs/DEPLOY.md](docs/DEPLOY.md).
+Build statica con `base: './'` (funziona in qualsiasi sottocartella). **Pubblicata su Vercel: https://val-di-fumo.vercel.app** — non provata dal vivo dall'ambiente di sviluppo (rete bloccata): vedi i controlli in [docs/DEPLOY.md](docs/DEPLOY.md). Il workflow GitHub Pages in `.github/workflows/pages.yml` è incluso come alternativa ma non è mai stato eseguito.
