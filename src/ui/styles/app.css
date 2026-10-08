@@ -110,9 +110,10 @@ main.full { padding: 0 0 calc(var(--tabbar-h) + env(safe-area-inset-bottom)); ma
 .progress { height: 12px; border-radius: 999px; background: var(--c-surface-2); border: 1px solid var(--c-line); overflow: hidden; }
 .progress > span { display: block; height: 100%; background: var(--c-brand-2); }
 
-.kv { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 4px 12px; margin: 0; }
-.kv dt { color: var(--c-ink-3); font-size: 0.9rem; overflow-wrap: anywhere; }
-.kv dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+.kv { display: block; margin: 0; }
+.kv dt { color: var(--c-ink-3); font-size: 0.9rem; margin-top: 10px; overflow-wrap: anywhere; }
+.kv dt:first-child { margin-top: 0; }
+.kv dd { margin: 2px 0 0; font-weight: 700; overflow-wrap: anywhere; }
 
 .stat { background: var(--c-surface-2); border-radius: var(--radius-sm); padding: 10px; border: 1px solid var(--c-line); }
 .stat .l { font-size: 0.74rem; color: var(--c-ink-3); font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -159,10 +160,13 @@ main.full { display: flex; flex-direction: column; min-height: 0; }
 .map-hud .stat .s { font-size: 0.74rem; line-height: 1.25; }
 .map-bottom { position: absolute; left: 6px; right: 6px; bottom: 0; z-index: 5; display: flex; flex-direction: column; gap: 6px; pointer-events: none; max-height: calc(100% - 96px); }
 .map-bottom > * { pointer-events: auto; }
-.map-controls { display: flex; flex-direction: column; align-items: stretch; gap: 6px; pointer-events: none; }
+.map-controls { display: flex; flex-direction: row; align-items: center; gap: 6px; pointer-events: none; }
+.map-controls .map-chips { flex: 1 1 auto; min-width: 0; }
 .map-controls > * { pointer-events: auto; }
-.map-tools { display: flex; flex-direction: row; align-self: flex-end; gap: 8px; }
-.map-tools .btn { width: 52px; min-height: 52px; padding: 0; border-radius: 50%; }
+.map-tools { display: flex; flex: none; flex-direction: row; gap: 6px; }
+.map-tools .btn { width: 46px; min-height: 46px; padding: 0; border-radius: 50%; }
+.map-hud.compact .stat .s { display: none; }
+.map-hud.compact .stat { padding: 4px 8px; }
 .map-chips { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .map-chips::-webkit-scrollbar { display: none; }
 .map-chips button { flex: none; font: inherit; font-weight: 800; font-size: 0.86rem; min-height: 44px; padding: 4px 14px; border-radius: 999px; border: 2px solid var(--c-line); background: var(--c-surface); color: var(--c-ink); cursor: pointer; white-space: nowrap; box-shadow: var(--shadow); }

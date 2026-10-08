@@ -28,6 +28,7 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
   const [selected, setSelected] = useState<string | null>(null);
   const [forceSvg, setForceSvg] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
+  const [details, setDetails] = useState(false);
   const gl = useMemo(() => webglSupported(), []);
   const hudRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -149,7 +150,7 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
       )}
 
       <h1 className="sr-only">Mappa e posizione</h1>
-      <div className="map-hud" aria-live="off" ref={hudRef}>
+      <div className={`map-hud${details ? '' : ' compact'}`} aria-live="off" ref={hudRef}>
         <Stat label="Dove sono" value={whereTitle} sub={whereSub} id="hud-where" />
         <Stat label="Dove devo andare" value={<span style={{ fontSize: '0.92em' }}>{nextName}</span>} sub={`tra ${nextDist}${nav?.reliable ? ` · traccia verso ${compassIT(nav.routeBearingDeg)}` : ''}`} id="hud-next" />
         <Stat label="Quanto manca" value={remainingVal} sub={remainingSub} id="hud-left" />
@@ -162,6 +163,19 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
 
       <div className="map-bottom" ref={bottomRef}>
         <div className="map-controls">
+          <div className="map-chips" role="group" aria-label="Percorso mostrato">
+            {chips.map((c) => (
+              <button key={c.id} aria-pressed={activeRouteId === c.id} onClick={() => a.setRouteOverride(c.id)}>
+                {c.label}
+              </button>
+            ))}
+            <button onClick={() => setDetails((d) => !d)} aria-pressed={details} data-testid="hud-details">
+              Dettagli
+            </button>
+            <button onClick={() => setListOpen(true)} aria-haspopup="dialog">
+              <Icon name="list" size={16} /> Elenco punti
+            </button>
+          </div>
           <div className="map-tools">
             <button className="btn secondary" onClick={() => ref.current?.center()} disabled={!pos} aria-label="Centra su di me" title="Centra su di me">
               <Icon name="target" />
@@ -177,16 +191,6 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
               data-testid="gps-toggle"
             >
               <Icon name="gps" />
-            </button>
-          </div>
-          <div className="map-chips" role="group" aria-label="Percorso mostrato">
-            {chips.map((c) => (
-              <button key={c.id} aria-pressed={activeRouteId === c.id} onClick={() => a.setRouteOverride(c.id)}>
-                {c.label}
-              </button>
-            ))}
-            <button onClick={() => setListOpen(true)} aria-haspopup="dialog">
-              <Icon name="list" size={16} /> Elenco punti
             </button>
           </div>
         </div>
@@ -208,7 +212,7 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
             </div>
           ) : null}
           {gps.status === 'idle' && !pos ? (
-            <div className="card alert-info row between" style={{ margin: 0, padding: 10 }}>
+            <div className="card alert-info row between" style={{ margin: 0, padding: '6px 10px' }}>
               <span className="small">
                 <strong>GPS spento.</strong> Parte solo se lo attivi tu.
               </span>
