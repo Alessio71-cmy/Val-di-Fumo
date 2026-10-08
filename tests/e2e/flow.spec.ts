@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { openApp, parseClock, parseDistance, rawPoint, routeLength, tab } from './helpers';
+import { openApp, parseClock, parseDistance, rawPoint, readStoredPrefs, routeLength, tab } from './helpers';
 
 /** Test AUTOMATICI su Chromium: programma orario, fasi della giornata, via del ritorno, navigazione stradale. */
 
@@ -213,4 +213,18 @@ test('durante il trekking la Mappa mostra sempre l’ultimo orario prudenziale p
   await expect(page.getByTestId('phase-label')).toHaveText('Ritorno a piedi');
   await tab(page, 'mappa');
   await expect(page.getByTestId('hud-strip')).toContainText(/All’auto entro \d\d:\d\d · tramonto \d\d:\d\d/);
+});
+
+test('un orario appena registrato non va perso: salvataggio immediato quando la pagina viene nascosta', async ({ page }) => {
+  await openApp(page);
+  await page.getByTestId('advance').click(); // registra "Sono partito da Pergine"
+  // simula il passaggio in secondo piano/chiusura IMMEDIATAMENTE (prima dei 250 ms del salvataggio ritardato)
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect
+    .poll(async () => ((await readStoredPrefs(page))?.actuals as Record<string, number> | undefined)?.departed ?? null, { timeout: 3000 })
+    .toBeGreaterThan(0);
+  expect((await readStoredPrefs(page))?.phase).toBe('drive-out');
 });

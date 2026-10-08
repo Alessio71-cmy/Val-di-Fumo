@@ -4,7 +4,7 @@
 
 > ## Lettura in 30 secondi
 >
-> - **Test automatici: 173 unitari + 64 end-to-end, tutti superati** (da installazione pulita; suite E2E eseguita 3 volte di fila: 64/64 ogni volta, nessun test instabile nell'ultima versione).
+> - **Test automatici: 173 unitari + 66 end-to-end, tutti superati** (da installazione pulita; suite E2E eseguita 3 volte di fila sull'ultima versione: 66/66 ogni volta, nessun test instabile).
 > - **Nessun test su dispositivo fisico è stato eseguito.** Non c'erano iPhone, secondo telefono, modalità aereo reale né GPS reale. Quindi i test obbligatori n. **2** (installazione su iPhone) e n. **3** (secondo dispositivo) sono **NON ESEGUITI**, e i n. **5, 6, 9** sono solo **SIMULATI** su Chromium.
 > - Il browser provato è **solo Chromium** (Playwright). **Safari/WebKit (iPhone) e Firefox non sono stati provati.**
 > - Il meteo (Open-Meteo) **non è stato provato dal vivo** (host bloccato dall'ambiente); la risposta è simulata.
@@ -25,7 +25,7 @@
 ```bash
 npm ci
 npx playwright install chromium   # se manca
-npm run test:all                  # typecheck + 173 test unitari + build + 64 test E2E (≈ 3 minuti)
+npm run test:all                  # typecheck + 173 test unitari + build + 66 test E2E (≈ 3 minuti)
 ```
 
 I risultati strutturati vengono scritti in `test-results/` (non versionata); le schermate a più dimensioni in `test-results/screens/`.
@@ -138,7 +138,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | `sun.test.ts` | 25 | alba/tramonto/crepuscolo contro riferimenti indipendenti (astral), orizzonte |
 | `weather.test.ts` | 9 | meteo: URL, risposta SIMULATA, riepilogo, errori, cache |
 
-### Test end-to-end (Playwright, Chromium): 64 superati su 64
+### Test end-to-end (Playwright, Chromium): 66 superati su 66
 
 **`a11y.spec.ts`**
 
@@ -173,6 +173,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - ✅ pacchetto mappa incompleto: mappa schematica con traccia e punti e avviso, non una mappa vuota
 - ✅ WebGL non disponibile: ripiego SVG con traccia, punti selezionabili e tastiera
 - ✅ contesto WebGL perso a mappa aperta: passaggio automatico alla mappa schematica con avviso
+- ✅ errore imprevisto in fase di disegno: niente pagina bianca, ricarica, 112 e segnale di soccorso sempre disponibili
 
 **`flow.spec.ts`**
 
@@ -184,6 +185,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - ✅ navigazione stradale: link con le coordinate verificate dei dati, avvertenze sul parcheggio
 - ✅ esito della verifica sul rifugio: lo stato è dichiarato dall’utente e persiste
 - ✅ durante il trekking la Mappa mostra sempre l’ultimo orario prudenziale per iniziare il ritorno; al ritorno l’ora limite all’auto
+- ✅ un orario appena registrato non va perso: salvataggio immediato quando la pagina viene nascosta
 
 **`gps.spec.ts`**
 

@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { ErrorBoundary } from './ui/components/ErrorBoundary';
 import './ui/styles/tokens.css';
 import './ui/styles/app.css';
 
@@ -9,6 +10,8 @@ if (!root) throw new Error('Elemento #root mancante');
 if (!document.documentElement.dataset.theme) document.documentElement.dataset.theme = 'auto';
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );

@@ -142,3 +142,21 @@ test('contesto WebGL perso a mappa aperta: passaggio automatico alla mappa schem
   await expect(page.getByTestId('gl-failed')).toContainText('mappa schematica');
   await expect(page.getByTestId('svg-route')).toBeVisible();
 });
+
+test('errore imprevisto in fase di disegno: niente pagina bianca, ricarica, 112 e segnale di soccorso sempre disponibili', async ({ page }) => {
+  // provoca davvero un'eccezione durante il rendering (formattazione della data dell'escursione)
+  await page.addInitScript(() => {
+    (Intl as unknown as { DateTimeFormat: unknown }).DateTimeFormat = function () {
+      throw new Error('errore di prova');
+    };
+  });
+  await page.goto('/');
+  const alert = page.getByRole('alert').filter({ hasText: 'Errore imprevisto' });
+  await expect(alert).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('button', { name: 'Ricarica l’app' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Cancella i dati salvati/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Chiama il 112' })).toHaveAttribute('href', 'tel:112');
+  await expect(page.getByText(/Sei segnali/)).toBeVisible();
+  await page.getByText('Dettagli tecnici').click();
+  await expect(page.getByText('errore di prova')).toBeVisible();
+});

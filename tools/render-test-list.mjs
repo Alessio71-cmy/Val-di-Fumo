@@ -4,7 +4,7 @@
  *   npx vitest run --reporter=json --outputFile=test-results/unit.json
  *   npx playwright test            (scrive test-results/e2e.json)
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const unit = JSON.parse(readFileSync('test-results/unit.json', 'utf8'));
 const e2e = JSON.parse(readFileSync('test-results/e2e.json', 'utf8'));
@@ -65,5 +65,19 @@ const path = 'docs/TEST-REPORT.md';
 const doc = readFileSync(path, 'utf8');
 const re = /<!-- BEGIN:test-list -->[\s\S]*?<!-- END:test-list -->/;
 if (!re.test(doc)) throw new Error('blocco test-list non trovato');
-writeFileSync(path, doc.replace(re, `<!-- BEGIN:test-list -->\n${lines.join('\n')}\n<!-- END:test-list -->`));
+let out = doc.replace(re, `<!-- BEGIN:test-list -->\n${lines.join('\n')}\n<!-- END:test-list -->`);
+// i numeri in testa al report e nel comando di esecuzione seguono sempre i risultati reali
+out = out.replace(/> - \*\*Test automatici: \d+ unitari \+ \d+ end-to-end, tutti superati\*\*/, `> - **Test automatici: ${uTotal} unitari + ${total} end-to-end, tutti superati**`);
+out = out.replace(/suite E2E eseguita 3 volte di fila sull'ultima versione: \d+\/\d+ ogni volta/, `suite E2E eseguita 3 volte di fila sull'ultima versione: ${total}/${total} ogni volta`);
+out = out.replace(/typecheck \+ \d+ test unitari \+ build \+ \d+ test E2E/, `typecheck + ${uTotal} test unitari + build + ${total} test E2E`);
+if (passed !== total || uTotal !== unit.numTotalTests) throw new Error('ci sono test non superati: il report non va aggiornato');
+// i risultati devono provenire da una esecuzione COMPLETA (tutti i file di test presenti), non da una prova parziale
+const specs = readdirSync('tests/e2e').filter((f) => f.endsWith('.spec.ts') && !f.startsWith('_'));
+const missingSpecs = specs.filter((f) => !byFile.has(f));
+if (missingSpecs.length) throw new Error(`risultati E2E incompleti (mancano: ${missingSpecs.join(', ')}): esegui l'intera suite prima di aggiornare il report`);
+const unitFiles = readdirSync('tests/unit').filter((f) => f.endsWith('.test.ts'));
+const unitSeen = new Set(unit.testResults.map((f) => f.name.split('/tests/unit/').pop()));
+const missingUnit = unitFiles.filter((f) => !unitSeen.has(f));
+if (missingUnit.length) throw new Error(`risultati unitari incompleti (mancano: ${missingUnit.join(', ')})`);
+writeFileSync(path, out);
 console.log(`docs/TEST-REPORT.md aggiornato: ${uTotal} unitari, ${passed}/${total} E2E`);

@@ -121,12 +121,62 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [online, setOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine));
   const [toast, setToast] = useState<string | null>(null);
 
+  // ---- persistenza delle preferenze ----
+  // Le modifiche si accumulano in un riferimento sincrono (due aggiornamenti nello stesso istante non si sovrascrivono), si salvano
+  // dopo 250 ms e, soprattutto, subito quando la pagina viene nascosta o chiusa: un orario appena registrato non deve andare perso.
+  const prefsRef = useRef<Prefs>(DEFAULT_PREFS);
+  const pendingSave = useRef(false);
+  const saveTimer = useRef<number | null>(null);
+  const flushPrefs = useCallback(() => {
+    if (saveTimer.current !== null) {
+      window.clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    if (pendingSave.current) {
+      pendingSave.current = false;
+      void savePrefs(prefsRef.current);
+    }
+  }, []);
+  const updatePrefs = useCallback(
+    (patch: Partial<Prefs>) => {
+      const next = { ...prefsRef.current, ...patch };
+      prefsRef.current = next;
+      setPrefs(next);
+      if (!prefsLoaded.current) return;
+      pendingSave.current = true;
+      if (saveTimer.current !== null) window.clearTimeout(saveTimer.current);
+      saveTimer.current = window.setTimeout(flushPrefs, 250);
+    },
+    [flushPrefs],
+  );
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') flushPrefs();
+    };
+    document.addEventListener('visibilitychange', onHide);
+    window.addEventListener('pagehide', flushPrefs);
+    return () => {
+      document.removeEventListener('visibilitychange', onHide);
+      window.removeEventListener('pagehide', flushPrefs);
+    };
+  }, [flushPrefs]);
+
+  const clearPersonalData = useCallback(async () => {
+    if (saveTimer.current !== null) window.clearTimeout(saveTimer.current);
+    saveTimer.current = null;
+    pendingSave.current = false;
+    prefsRef.current = DEFAULT_PREFS;
+    await resetPrefs();
+    setPrefs(DEFAULT_PREFS);
+  }, []);
+
   // ---- caricamento iniziale ----
   useEffect(() => {
     let alive = true;
     void (async () => {
       const [p, g] = await Promise.all([loadPrefs(), loadGeo()]);
       if (!alive) return;
+      prefsRef.current = p;
       setPrefs(p);
       prefsLoaded.current = true;
       setGeo(g);
@@ -139,24 +189,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const built = useMemo(() => (geo ? buildTrip(geo) : null), [geo]);
   const trip = built?.trip ?? null;
-
-  // ---- persistenza delle preferenze ----
-  const saveTimer = useRef<number | null>(null);
-  const updatePrefs = useCallback((patch: Partial<Prefs>) => {
-    setPrefs((cur) => {
-      const next = { ...cur, ...patch };
-      if (prefsLoaded.current) {
-        if (saveTimer.current) window.clearTimeout(saveTimer.current);
-        saveTimer.current = window.setTimeout(() => void savePrefs(next), 250);
-      }
-      return next;
-    });
-  }, []);
-
-  const clearPersonalData = useCallback(async () => {
-    await resetPrefs();
-    setPrefs(DEFAULT_PREFS);
-  }, []);
 
   // ---- aspetto ----
   useEffect(() => {
@@ -198,11 +230,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const phase: Phase = prefs.phase;
   const recordEvent = useCallback(
     (id: ScheduleEventId, minutes?: number) => {
-      const m = minutes ?? Math.round(minutesSinceLocalMidnight(Date.now(), tripDate, tz));
+      // ora del giorno (minuti dalla mezzanotte locale di OGGI), non dal giorno dell'escursione: anche usando l'app in un altro giorno il valore resta valido
+      const m = minutes ?? Math.round(minutesSinceLocalMidnight(Date.now(), localDateISO(Date.now(), tz), tz));
       const actuals = { ...prefs.actuals, [id]: m };
       updatePrefs({ actuals, phase: phaseFromEvents(Object.keys(actuals) as ScheduleEventId[]) });
     },
-    [prefs.actuals, tripDate, tz, updatePrefs],
+    [prefs.actuals, tz, updatePrefs],
   );
   const undoLastEvent = useCallback(() => {
     const order = Object.keys(PHASE_BY_ID).flatMap((p) => (PHASE_BY_ID[p as Phase].advanceEvent ? [PHASE_BY_ID[p as Phase].advanceEvent as ScheduleEventId] : []));
