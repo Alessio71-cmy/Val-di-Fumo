@@ -4,7 +4,8 @@
 
 > ## Lettura in 30 secondi
 >
-> - **Test automatici: 173 unitari + 67 end-to-end, tutti superati** (dipendenze installate con `npm ci` dal lockfile; suite E2E eseguita 3 volte di fila sull'ultima versione: 67/67 ogni volta, nessun test instabile).
+> - **Test automatici: 173 unitari + 67 end-to-end, tutti superati** (dipendenze installate con `npm ci` dal lockfile; suite E2E eseguita in locale 2 volte di fila sull'ultima versione: 67/67 ogni volta, nessun test instabile; e **una volta sulla CI di GitHub**, runner Ubuntu: 67/67).
+> - **La CI di GitHub ha trovato un difetto che nel mio ambiente non si vedeva**: layout fragile con font di sistema larghi (un solo test falliva, sempre lo stesso, in cinque esecuzioni consecutive). Corretto e riprovato (§6): prima di allora "tutti superati" valeva solo per il mio ambiente.
 > - **Nessun test su dispositivo fisico è stato eseguito.** Non c'erano iPhone, secondo telefono, modalità aereo reale né GPS reale. Quindi i test obbligatori n. **2** (installazione su iPhone) e n. **3** (secondo dispositivo) sono **NON ESEGUITI**, e i n. **5, 6, 9** sono solo **SIMULATI** su Chromium.
 > - Il browser provato è **solo Chromium** (Playwright). **Safari/WebKit (iPhone) e Firefox non sono stati provati.**
 > - Il meteo (Open-Meteo) **non è stato provato dal vivo** (host bloccato dall'ambiente); la risposta è simulata.
@@ -35,6 +36,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - Linux in container, Node 22.22, Vite 5.4 (build di **produzione**, servita da `vite preview` su `127.0.0.1:4173`, secure context).
 - **Chromium 141** (build di Playwright 1.56.1), headless, profilo "Pixel 7" (412×915, touch); WebGL tramite SwiftShader (software).
 - Rete esterna **limitata dall'ambiente**: Open-Meteo, SAT, PNAB, Visit Trentino, Iter Edizioni, Wikimedia, OpenStreetMap/Overpass non raggiungibili. Per questo il meteo e le fonti ufficiali non sono stati provati.
+- **Seconda configurazione: GitHub Actions** (`ubuntu-latest`, Node 20, Chromium installato da `npx playwright install --with-deps chromium`, `retries: 0`), workflow `ci.yml`: typecheck, 173 test unitari, build e 67 E2E, a ogni push. Ha già trovato un difetto che il mio ambiente non mostrava (§6): le prime **cinque** esecuzioni (commit precedenti) sono fallite per lo stesso test; dopo la correzione l'esecuzione n. 6 (commit `c2191b4`) è **verde: 67/67 in 3,3 minuti**. Stessa limitazione: solo Chromium, nessun dispositivo reale.
 
 ## 4. I 20 test obbligatori del brief
 
@@ -56,8 +58,8 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | 14 | Visualizzazione della via di ritorno | AUTOMATICO | **Superato** | Fasi della giornata, pulsante "Torna al parcheggio" apre il ritorno (rifugio → diga, 6,10 km), variante di sponda per il ritorno. `flow.spec.ts`, `map.spec.ts` | — |
 | 15 | Gestione di dati incompleti | AUTOMATICO | **Superato** | Traccia assente/illeggibile, punti assenti, tempi di guida e orizzonte assenti (valori generici dichiarati), nessun dato geografico, pacchetto mappa incompleto, WebGL assente/perso: avvisi chiari, nessuna eccezione, nessuna schermata bianca. `data.spec.ts`, `data.test.ts`, `schedule-input.test.ts` | — |
 | 16 | Controllo delle licenze cartografiche | AUTOMATICO + documentale | **Superato (controlli automatici)** | Attribuzioni ODbL/EU-DEM/MapLibre/Open-Meteo mostrate; GPX con autore e licenza; **nessun tile server di terzi** (host contattati = origine + meteo); dominio per dominio nel codice pubblicato; metadati dei dati. `licenses.spec.ts`; [DATA-LICENSE.md](../DATA-LICENSE.md) | **Non è una consulenza legale.** La conformità ODbL (condivisione alle stesse condizioni) va confermata dal titolare. |
-| 17 | Leggibilità su schermi piccoli | AUTOMATICO | **Superato (misure)** | 320×568, 360×640, 375×667, 390×844 e 667×375: nessun overflow orizzontale, bersagli di tocco ≥ 44 px (marker mappa 30 px con area estesa), testo ≥ 11 px, niente testo troncato; azione principale visibile senza scorrere a 320×568; indicatori della mappa non sovrapposti. Schermate salvate e riviste a mano. `responsive.spec.ts` | **Leggibilità sotto luce solare, guanti, dita bagnate, resa dei caratteri su schermi reali.** |
-| 18 | Verifica dell'accessibilità | AUTOMATICO | **Superato (parte automatizzabile)** | axe-core WCAG 2.2 A/AA: **0 violazioni** su 5 schermate × 3 temi (chiaro, scuro, alto contrasto) e sulle finestre di dialogo; tastiera (link "vai al contenuto", focus intrappolato nei dialoghi, Esc, focus visibile ≥ 2 px); un `main`, un `banner`, navigazione con nome, nessun ID duplicato; movimento ridotto; testo 130 % senza overflow; informazioni mai solo a colore. `a11y.spec.ts` | **Lettori di schermo (VoiceOver/TalkBack) e prove con persone con disabilità: non eseguite.** axe copre solo una parte dei criteri. Il canvas della mappa non è accessibile: l'equivalente è l'elenco testuale. |
+| 17 | Leggibilità su schermi piccoli | AUTOMATICO | **Superato (misure)** | 320×568, 360×640, 375×667, 390×844 e 667×375, **con il font di sistema e con DejaVu Sans (più largo)**: nessun overflow orizzontale, bersagli di tocco ≥ 44 px (marker mappa 30 px con area estesa), testo ≥ 11 px, niente testo troncato; azione principale visibile senza scorrere a 320×568; indicatori della mappa non sovrapposti. Schermate salvate e riviste a mano. `responsive.spec.ts` | **Leggibilità sotto luce solare, guanti, dita bagnate, resa dei caratteri su schermi reali.** |
+| 18 | Verifica dell'accessibilità | AUTOMATICO | **Superato (parte automatizzabile)** | axe-core WCAG 2.2 A/AA: **0 violazioni** su 5 schermate × 3 temi (chiaro, scuro, alto contrasto) e sulle finestre di dialogo; tastiera (link "vai al contenuto", focus intrappolato nei dialoghi, Esc, focus visibile ≥ 2 px); un `main`, un `banner`, navigazione con nome, nessun ID duplicato; movimento ridotto; testo 130 % su 320 px senza overflow né etichette della barra tagliate, con cinque famiglie di caratteri (sistema, DejaVu Sans/Serif/Mono, Liberation Sans); informazioni mai solo a colore. `a11y.spec.ts` | **Lettori di schermo (VoiceOver/TalkBack) e prove con persone con disabilità: non eseguite.** axe copre solo una parte dei criteri. Il canvas della mappa non è accessibile: l'equivalente è l'elenco testuale. |
 | 19 | Nessuna richiesta di rete indispensabile offline | AUTOMATICO (offline simulato) | **Superato** | Dopo il download, riaprendo offline: **0** richieste verso altri domini, **0** richieste fallite, **0** risposte dalla rete (tutte dal service worker). Con una **CSP restrittiva** applicata davvero (e controprova che rileva le violazioni) l'app funziona per intero. `offline.spec.ts`, `csp.spec.ts`, `licenses.spec.ts` | Comportamento di altri browser. |
 | 20 | Verifica delle limitazioni iOS e documentazione di ciò che non può essere garantito | **Documentale** | **Documentato; NON verificato su iOS** | Banner e testi in app (mappa, Sicurezza → Limiti, installazione) e [KNOWN-LIMITS.md](KNOWN-LIMITS.md), [INSTALL.md](INSTALL.md): nessun tracciamento garantito con schermo bloccato; memoria Safari separata dall'app installata; sfratto dei dati; permesso GPS. `content.spec.ts`, `pwa.spec.ts` verificano che i testi ci siano. | Che quanto documentato sia esattamente ciò che fa iOS: **le limitazioni sono note dal comportamento di piattaforma, non sono state osservate qui.** |
 
@@ -100,6 +102,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | Meteo: errore in inglese ("Failed to fetch"); campi dei tempi di guida vuoti senza dati | Revisione delle schermate | Messaggio in italiano; valore usato mostrato e dichiarato generico |
 | Avviso "pacchetto mappa non disponibile" lampeggiante durante il caricamento | `map.spec.ts` | Stato neutro "Carico la mappa…" |
 | Applicazione dell'aggiornamento del service worker non sempre immediata | Test instabile (1 su 3) → analisi con CDP | Causa: il test interrogava il vecchio worker mentre Chromium lo stava sostituendo (ogni richiesta lo tiene in vita). Test corretto; l'app ora ripete il messaggio e la documentazione avverte che può servire qualche secondo |
+| **Layout fragile con font di sistema più larghi**: 1 px di overflow orizzontale in *Oggi* con testo "molto grande" (130 %) su 320 px; a monte, barra delle schede, chip, liste chiave/valore, checklist e intestazione del meteo non si adattavano a caratteri larghi | **CI di GitHub** (runner Ubuntu): un solo test (su 64–67, secondo la versione) falliva, sempre lo stesso, in cinque esecuzioni consecutive; in locale **tutto passava**. Causa **inferita** (il font del runner non è stato ispezionato): font di sistema più largo del mio; forzando DejaVu Sans in locale l'errore si riproduce | Celle della barra delle schede che si restringono con etichette proporzionate alla larghezza dello schermo; chip, badge, liste e checklist che vanno a capo; intestazione del meteo che va a capo; `minimum-scale=1` nel viewport (su iPhone un overflow rimpicciolisce l'intera pagina). I test ora ripetono i controlli con cinque famiglie di caratteri; **controprova**: senza queste correzioni il test fallisce |
 
 **Insidie dell'infrastruttura di test annotate:** (1) un percorso del profilo Chromium con caratteri non ASCII (es. un trattino lungo nel titolo del test) **impedisce la registrazione del service worker**: i profili persistenti usano un percorso ASCII; (2) due versioni di `playwright-core` (dipendenza di `@axe-core/playwright`) davano tipi incompatibili: bloccata con `overrides` in `package.json`.
 
@@ -110,7 +113,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 3. **Traccia e luoghi non verificati sul campo** né confrontati con fonti ufficiali; i test confrontano l'app con i dati della pipeline e con misure secondarie, non con il terreno.
 4. **Meteo dal vivo non provato**; **link esterni** (navigazione stradale) solo come costruzione degli indirizzi.
 5. **Accessibilità**: nessun lettore di schermo reale.
-6. **Hosting**: nessuna pubblicazione; workflow GitHub non eseguiti (`ci.yml`, `pages.yml`).
+6. **Hosting**: nessuna pubblicazione; il workflow `pages.yml` non è mai stato eseguito (richiede il ramo `main` e l'attivazione di GitHub Pages). Il workflow `ci.yml` è stato eseguito su GitHub (vedi §3).
 7. **Carico e durata**: nessuna prova di uso prolungato con GPS attivo per ore.
 8. **Fuso orario/data**: provato con orologio finto al 9/10/2026; nessuna prova con data diversa dalla configurazione.
 
@@ -149,7 +152,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - ✅ tastiera: link "Vai al contenuto", ordine del focus, focus visibile, Esc chiude i dialoghi e restituisce il focus
 - ✅ struttura: un solo main, nav con nome, intestazioni coerenti, lingua italiana, nessun ID duplicato
 - ✅ movimento ridotto: nessuna transizione se il sistema lo chiede; informazioni mai affidate al solo colore
-- ✅ dimensione del testo "molto grande" (130 %): nessun overflow orizzontale su 320 px
+- ✅ dimensione del testo "molto grande" (130 %) con font diversi: nessun overflow orizzontale su 320 px e barre di navigazione non tagliate
 
 **`content.spec.ts`**
 
@@ -233,11 +236,11 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 
 **`responsive.spec.ts`**
 
-- ✅ iPhone SE (320×568): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato
-- ✅ Android piccolo (360×640): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato
-- ✅ iPhone 8 (375×667): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato
-- ✅ iPhone 14 (390×844): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato
-- ✅ telefono in orizzontale (667×375): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato
+- ✅ iPhone SE (320×568): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato (font di sistema e DejaVu Sans)
+- ✅ Android piccolo (360×640): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato (font di sistema e DejaVu Sans)
+- ✅ iPhone 8 (375×667): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato (font di sistema e DejaVu Sans)
+- ✅ iPhone 14 (390×844): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato (font di sistema e DejaVu Sans)
+- ✅ telefono in orizzontale (667×375): nessun overflow, bersagli ≥ 44 px, testo ≥ 11 px, niente testo troncato (font di sistema e DejaVu Sans)
 - ✅ 320×568: l’azione principale di "Oggi" è visibile senza scorrere e i tre indicatori della mappa non si sovrappongono
 
 <!-- END:test-list -->

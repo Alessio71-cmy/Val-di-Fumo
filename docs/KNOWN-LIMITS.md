@@ -52,7 +52,8 @@ Elenco volutamente senza abbellimenti. Dove un limite ha un rimedio, è indicato
 
 ## 4. Accessibilità e compatibilità (cosa è stato e non è stato provato)
 
-- Provati in automatico: assenza di violazioni WCAG 2.2 A/AA rilevabili da axe-core in tre temi, navigazione da tastiera, struttura, movimento ridotto, testo ingrandito, schermi da 320 px. **Non provati:** lettori di schermo (VoiceOver, TalkBack), prove con persone con disabilità. L'axe copre solo una parte dei criteri.
+- Provati in automatico: assenza di violazioni WCAG 2.2 A/AA rilevabili da axe-core in tre temi, navigazione da tastiera, struttura, movimento ridotto, testo "molto grande" dell'app (130 %) su schermi da 320 px con cinque famiglie di caratteri (la CI di GitHub ha mostrato che il risultato dipende dal font di sistema: vedi [TEST-REPORT.md](TEST-REPORT.md) §6). **Non provati:** lettori di schermo (VoiceOver, TalkBack), prove con persone con disabilità, ingrandimento dei caratteri impostato dal **sistema operativo** (Android, Dimensione dinamica di iOS) e zoom del browser. L'axe copre solo una parte dei criteri.
+- **Non seguono** l'impostazione "Dimensione del testo" dell'app: le etichette della **barra inferiore** (Oggi, Mappa, Percorso, Esplora, Sicurezza; 11–13,5 px in proporzione alla larghezza dello schermo, compromesso scelto per far entrare sempre cinque voci a 320 px senza tagliarle, anche con font larghi) e le **etichette sulla mappa** (12 px). Il resto del testo la segue.
 - Il canvas della mappa non è accessibile al lettore di schermo: l'alternativa equivalente è *Elenco punti* e *Percorso*.
 - **Browser provato: solo Chromium** (motore di Chrome/Edge/Android). **Non provati:** Safari/WebKit (iPhone), Firefox. Differenze di comportamento su iOS sono probabili (service worker, geolocalizzazione, WebGL, memoria).
 

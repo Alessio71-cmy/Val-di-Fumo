@@ -19,7 +19,7 @@ npm run preview    # prova locale su http://127.0.0.1:4173
 3. L'indirizzo sarà del tipo `https://<utente>.github.io/<repository>/` (per questo repository: `https://alessio71-cmy.github.io/Val-di-Fumo/`, da confermare nell'esito del workflow).
 4. GitHub Pages **non permette intestazioni personalizzate**: nessuna CSP e cache HTTP di 10 minuti. È accettabile perché l'aggiornamento è governato dal service worker (che scarica `sw.js` e `precache-manifest.json` ignorando la cache HTTP).
 
-Il workflow di verifica `.github/workflows/ci.yml` (typecheck, test unitari, build, test E2E su Chromium) **non è stato eseguito** nell'ambiente di sviluppo: potrebbe richiedere piccoli aggiustamenti.
+Il workflow di verifica `.github/workflows/ci.yml` (typecheck, test unitari, build, test E2E su Chromium) parte a ogni push ed **è stato eseguito su GitHub**: le prime cinque esecuzioni sono fallite per un difetto di layout con font di sistema larghi (corretto, vedi [TEST-REPORT.md](TEST-REPORT.md) §6); l'esecuzione sul commit corretto è verde (67/67). Il workflow `pages.yml` invece **non è mai stato eseguito**: potrebbe richiedere piccoli aggiustamenti. Le azioni di GitHub usate mostrano un avviso di deprecazione di Node 20 (per ora non blocca nulla; gli aggiornamenti delle azioni vanno valutati dal titolare).
 
 ## Opzione B — Netlify / Cloudflare Pages
 
