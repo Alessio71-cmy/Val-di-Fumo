@@ -178,6 +178,9 @@ main.full { display: flex; flex-direction: column; min-height: 0; }
 .map-chips button { flex: none; font: inherit; font-weight: 800; font-size: 0.86rem; min-height: 44px; padding: 4px 14px; border-radius: 999px; border: 2px solid var(--c-line); background: var(--c-surface); color: var(--c-ink); cursor: pointer; white-space: nowrap; box-shadow: var(--shadow); }
 .map-chips button[aria-pressed='true'] { border-color: var(--c-brand); background: var(--c-ok-bg); color: var(--c-brand); }
 .map-banner { overflow: auto; min-height: 0; }
+/* solo mappa: restano la mappa, la posizione, l'attribuzione di legge e il tasto per tornare alle informazioni */
+.mapwrap.map-only .map-hud, .mapwrap.map-only .map-bottom > :not(.map-attrib) { display: none; }
+.map-showinfo { position: absolute; top: 8px; right: 8px; z-index: 6; min-height: 46px; padding: 6px 14px; box-shadow: var(--shadow); }
 .map-banner:empty { display: none; }
 .map-attrib { font-size: 0.7rem; color: #222; background: rgba(255, 255, 255, 0.82); padding: 1px 5px; border-radius: 4px 4px 0 0; align-self: flex-start; max-width: 100%; }
 

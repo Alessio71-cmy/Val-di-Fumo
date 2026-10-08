@@ -30,11 +30,21 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
   const [forceSvg, setForceSvg] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
   const [details, setDetails] = useState(false);
+  const [mapOnly, setMapOnly] = useState(false);
+  const soloRef = useRef<HTMLButtonElement>(null);
+  const infoRef = useRef<HTMLButtonElement>(null);
+  const modeChanged = useRef(false);
   const compass = useCompass();
   const gl = useMemo(() => webglSupported(), []);
   const hudRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [insets, setInsets] = useState({ top: 110, bottom: 180 });
+
+  // il tasto premuto sparisce: il focus passa al tasto che ripristina la vista (e torna indietro all'uscita)
+  useEffect(() => {
+    if (!modeChanged.current) return;
+    (mapOnly ? infoRef : soloRef).current?.focus();
+  }, [mapOnly]);
 
   useEffect(() => {
     a.loadMap();
@@ -109,6 +119,7 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
   const remainingVal = nav ? fmtDistance(nav.remainingM) : fmtDistance(route.lengthM);
   const remainingSub = nav?.next?.etaMin !== undefined ? `prossimo punto ≈${fmtDuration(nav.next.etaMin)}` : nav ? 'lungo la traccia' : 'lunghezza totale';
   const sched = a.schedule?.summary;
+  const hasAlert = !!GPS_PROBLEM[gps.status] || !!(pos && q && !q.usable) || !!(pos && q?.usable && a.offRoute.status === 'possibly-off' && prefs.offRouteAlerts);
 
   // informazione di sicurezza sempre in vista durante il trekking: ultimo orario prudenziale per iniziare il ritorno
   const strip =
@@ -127,7 +138,7 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
   if (activeRouteId.endsWith('-bank') && !chips.some((c) => c.id === activeRouteId)) chips.push({ id: activeRouteId, label: 'Sponda opposta' });
 
   return (
-    <div className="mapwrap" data-testid="map-screen" data-mode={useGl ? 'gl' : 'svg'}>
+    <div className={`mapwrap${mapOnly ? ' map-only' : ''}`} data-testid="map-screen" data-mode={useGl ? 'gl' : 'svg'}>
       {useGl && pack ? (
         <Suspense fallback={<p role="status" style={{ padding: 16 }}>Carico la mappa…</p>}>
           <MapView
@@ -154,6 +165,19 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
       )}
 
       <h1 className="sr-only">Mappa e posizione</h1>
+      {mapOnly ? (
+        <button
+          ref={infoRef}
+          className="btn map-showinfo"
+          onClick={() => {
+            modeChanged.current = true;
+            setMapOnly(false);
+          }}
+          data-testid="map-info-show"
+        >
+          <Icon name="list" size={18} /> {hasAlert ? 'Mostra info · c’è un avviso' : 'Mostra info'}
+        </button>
+      ) : null}
       <div className={`map-hud${details ? '' : ' compact'}`} aria-live="off" ref={hudRef}>
         <Stat label="Dove sono" value={whereTitle} sub={whereSub} id="hud-where" />
         <Stat label="Dove devo andare" value={<span style={{ fontSize: '0.92em' }}>{nextName}</span>} sub={`tra ${nextDist}${nav?.reliable ? ` · traccia verso ${compassIT(nav.routeBearingDeg)}` : ''}`} id="hud-next" />
@@ -182,6 +206,16 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
             </button>
             <button onClick={() => setDetails((d) => !d)} aria-pressed={details} data-testid="hud-details">
               Dettagli
+            </button>
+            <button
+              ref={soloRef}
+              onClick={() => {
+                modeChanged.current = true;
+                setMapOnly(true);
+              }}
+              data-testid="map-only-on"
+            >
+              <Icon name="map" size={16} /> Solo mappa
             </button>
             <button onClick={() => setListOpen(true)} aria-haspopup="dialog">
               <Icon name="list" size={16} /> Elenco punti

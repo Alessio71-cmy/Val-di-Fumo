@@ -40,8 +40,7 @@ test('bussola spenta di default; accesa a richiesta la freccia ruota verso dove 
   await androidEvent(page, 0); // in piedi, rivolto a nord
   await expect(dot).toHaveAttribute('data-heading', '0');
   await expect(dot).toHaveAttribute('aria-label', /nord/);
-  await androidEvent(page, 90); // alpha antiorario: 90 = ovest
-  await expect.poll(async () => Number(await dot.getAttribute('data-heading')), { timeout: 8000 }).toBeGreaterThan(300); // la media mobile arriva per gradi
+  // un sensore vero emette di continuo: alpha antiorario, 90 = ovest; la media mobile ci arriva per gradi
   for (let i = 0; i < 30; i++) {
     await androidEvent(page, 90);
     await page.waitForTimeout(110);
@@ -118,4 +117,33 @@ test('mappa schematica (senza WebGL): la freccia di direzione compare e ruota', 
     await page.waitForTimeout(120);
   }
   await expect(page.getByTestId('heading-cone')).toHaveAttribute('transform', /^rotate\(90 /);
+});
+
+test('"Solo mappa": restano mappa, attribuzione e un solo tasto per tornare; il focus segue; il tasto segnala un avviso', async ({ page, context }) => {
+  await openApp(page);
+  await tab(page, 'mappa');
+  await expect(page.locator('#hud-where')).toBeVisible();
+  await page.getByTestId('map-only-on').click();
+  for (const hidden of ['#hud-where', '#hud-next', '#hud-left']) await expect(page.locator(hidden)).toBeHidden();
+  await expect(page.getByRole('group', { name: 'Percorso mostrato' })).toBeHidden();
+  await expect(page.getByTestId('gps-toggle')).toBeHidden();
+  await expect(page.locator('.map-attrib')).toBeVisible(); // l'attribuzione OpenStreetMap/ODbL non si nasconde
+  await expect(page.getByTestId('gl-map')).toBeVisible();
+  const back = page.getByTestId('map-info-show');
+  await expect(back).toBeVisible();
+  await expect(back).toBeFocused();
+  await expect(back).toHaveText(/^\s*Mostra info\s*$/);
+  const box = await back.boundingBox();
+  expect(box!.height).toBeGreaterThanOrEqual(44);
+  await back.click();
+  await expect(page.locator('#hud-where')).toBeVisible();
+  await expect(page.getByTestId('map-only-on')).toBeFocused();
+  await expect(back).toHaveCount(0);
+
+  // con un avviso attivo (precisione scarsa) il tasto lo dice, perché in "solo mappa" gli avvisi non si vedono
+  await setGeo(context, pointAtChain(500), 160);
+  await page.getByTestId('gps-toggle').click();
+  await expect(page.getByTestId('gps-poor')).toBeVisible({ timeout: 20_000 });
+  await page.getByTestId('map-only-on').click();
+  await expect(page.getByTestId('map-info-show')).toContainText('avviso');
 });

@@ -4,7 +4,7 @@
 
 > ## Lettura in 30 secondi
 >
-> - **Test automatici: 183 unitari + 73 end-to-end, tutti superati** (dipendenze installate con `npm ci` dal lockfile; suite E2E eseguita in locale sull'ultima versione: 73/73 (una esecuzione; sulle versioni precedenti 3 esecuzioni di fila 67/67, nessun test instabile). **La CI di GitHub** ha già dato 67/67 sulla versione precedente: l'esito su quella attuale va letto in Actions).
+> - **Test automatici: 183 unitari + 74 end-to-end, tutti superati** (dipendenze installate con `npm ci` dal lockfile; suite E2E eseguita in locale sull'ultima versione: 74/74 (una esecuzione completa più 3 della spec nuova; sulle versioni precedenti 3 esecuzioni di fila 67/67, nessun test instabile). **La CI di GitHub** ha già dato 67/67 sulla versione precedente: l'esito su quella attuale va letto in Actions).
 > - **La CI di GitHub ha trovato un difetto che nel mio ambiente non si vedeva**: layout fragile con font di sistema larghi (un solo test falliva, sempre lo stesso, in cinque esecuzioni consecutive). Corretto e riprovato (§6): prima di allora "tutti superati" valeva solo per il mio ambiente.
 > - **L'app è pubblicata su Vercel (https://val-di-fumo.vercel.app) ma non l'ho potuta aprire da qui** (rete bloccata): i controlli «dopo la pubblicazione» di [DEPLOY.md](DEPLOY.md) vanno fatti da un telefono.
 > - **Nessun test su dispositivo fisico è stato eseguito.** Non c'erano iPhone, secondo telefono, modalità aereo reale né GPS reale. Quindi i test obbligatori n. **2** (installazione su iPhone) e n. **3** (secondo dispositivo) sono **NON ESEGUITI**, e i n. **5, 6, 9** sono solo **SIMULATI** su Chromium.
@@ -27,7 +27,7 @@
 ```bash
 npm ci
 npx playwright install chromium   # se manca
-npm run test:all                  # typecheck + 183 test unitari + build + 73 test E2E (≈ 3 minuti)
+npm run test:all                  # typecheck + 183 test unitari + build + 74 test E2E (≈ 3 minuti)
 ```
 
 I risultati strutturati vengono scritti in `test-results/` (non versionata); le schermate a più dimensioni in `test-results/screens/`.
@@ -145,7 +145,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | `vercel-config.test.ts` | 4 | vercel.json allineato a public/_headers: cache del service worker, CSP, build statica |
 | `weather.test.ts` | 9 | meteo: URL, risposta SIMULATA, riepilogo, errori, cache |
 
-### Test end-to-end (Playwright, Chromium): 73 superati su 73
+### Test end-to-end (Playwright, Chromium): 74 superati su 74
 
 **`a11y.spec.ts`**
 
@@ -166,6 +166,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - ✅ iPhone (simulato): permesso negato → messaggio chiaro, nessuna freccia, la posizione resta
 - ✅ nessun dato dal sensore (es. computer o browser senza bussola): messaggio dopo pochi secondi, nessuna direzione inventata
 - ✅ mappa schematica (senza WebGL): la freccia di direzione compare e ruota
+- ✅ "Solo mappa": restano mappa, attribuzione e un solo tasto per tornare; il focus segue; il tasto segnala un avviso
 
 **`content.spec.ts`**
 
