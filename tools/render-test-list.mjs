@@ -31,6 +31,7 @@ const WHAT = {
   'schedule.test.ts': 'motore del programma: ritardi, ora limite, suggerimenti',
   'storage.test.ts': 'archivio locale con ripiego in memoria',
   'sun.test.ts': 'alba/tramonto/crepuscolo contro riferimenti indipendenti (astral), orizzonte',
+  'vercel-config.test.ts': 'vercel.json allineato a public/_headers: cache del service worker, CSP, build statica',
   'weather.test.ts': 'meteo: URL, risposta SIMULATA, riepilogo, errori, cache',
 };
 for (const f of unit.testResults.sort((a, b) => a.name.localeCompare(b.name))) {

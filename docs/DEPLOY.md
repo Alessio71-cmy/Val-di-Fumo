@@ -28,25 +28,11 @@ Il workflow di verifica `.github/workflows/ci.yml` (typecheck, test unitari, bui
 
 ## Opzione C — Vercel
 
-```bash
-npm run build
-npx vercel deploy dist --prod
-```
+Il file `vercel.json` è **già incluso**: imposta la compilazione (Vite, `npm ci`, `npm run build`, cartella `dist`) e le stesse intestazioni di `public/_headers` (cache del service worker, CSP, `Permissions-Policy`). È generato da `public/_headers` con `npm run vercel-config`; il test unitario `vercel-config.test.ts` fallisce se i due file non sono allineati.
 
-(Se il progetto ha la protezione per le anteprime, il link deve essere **pubblico**, altrimenti gli amici vedranno una pagina di accesso.) Per le intestazioni usare `vercel.json` nella radice, copiando regole e CSP da `public/_headers`:
-
-```json
-{
-  "headers": [
-    { "source": "/(sw.js|precache-manifest.json|index.html|manifest.webmanifest)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
-    { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },
-    { "source": "/(.*)", "headers": [
-      { "key": "Content-Security-Policy", "value": "<copia la riga dal file public/_headers>" },
-      { "key": "Permissions-Policy", "value": "geolocation=(self), camera=(), microphone=()" }
-    ] }
-  ]
-}
-```
+- Collegando il repository a un progetto Vercel (preset Vite, nessuna variabile d'ambiente), ogni push sul ramo di produzione pubblica una nuova versione: **dal giorno prima dell'escursione in poi evitare push che cambiano il codice** (ogni nuova versione obbliga a ripetere *Prepara il viaggio*). Le modifiche ai soli documenti non cambiano `dist/` e quindi nemmeno l'ID di versione dell'app.
+- In alternativa, dalla propria macchina: `npm run build && npx vercel deploy --prod` (la CLI usa `vercel.json`).
+- Se il progetto ha la protezione per le anteprime (impostazione predefinita), l'indirizzo **di produzione** (`<progetto>.vercel.app`) è pubblico, ma gli indirizzi delle singole distribuzioni e delle anteprime chiedono l'accesso a Vercel: agli amici va mandato **solo** l'indirizzo di produzione.
 
 ## Opzione D — qualsiasi server (nginx, Apache…)
 
