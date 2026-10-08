@@ -4,7 +4,7 @@
 
 > ## Lettura in 30 secondi
 >
-> - **Test automatici: 173 unitari + 63 end-to-end, tutti superati** (suite E2E ripetuta 3 volte di fila: 63/63, nessun test instabile).
+> - **Test automatici: 173 unitari + 64 end-to-end, tutti superati** (da installazione pulita; suite E2E eseguita 3 volte di fila: 64/64 ogni volta, nessun test instabile nell'ultima versione).
 > - **Nessun test su dispositivo fisico è stato eseguito.** Non c'erano iPhone, secondo telefono, modalità aereo reale né GPS reale. Quindi i test obbligatori n. **2** (installazione su iPhone) e n. **3** (secondo dispositivo) sono **NON ESEGUITI**, e i n. **5, 6, 9** sono solo **SIMULATI** su Chromium.
 > - Il browser provato è **solo Chromium** (Playwright). **Safari/WebKit (iPhone) e Firefox non sono stati provati.**
 > - Il meteo (Open-Meteo) **non è stato provato dal vivo** (host bloccato dall'ambiente); la risposta è simulata.
@@ -25,7 +25,7 @@
 ```bash
 npm ci
 npx playwright install chromium   # se manca
-npm run test:all                  # typecheck + 173 test unitari + build + 63 test E2E (≈ 3 minuti)
+npm run test:all                  # typecheck + 173 test unitari + build + 64 test E2E (≈ 3 minuti)
 ```
 
 I risultati strutturati vengono scritti in `test-results/` (non versionata); le schermate a più dimensioni in `test-results/screens/`.
@@ -60,6 +60,19 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | 18 | Verifica dell'accessibilità | AUTOMATICO | **Superato (parte automatizzabile)** | axe-core WCAG 2.2 A/AA: **0 violazioni** su 5 schermate × 3 temi (chiaro, scuro, alto contrasto) e sulle finestre di dialogo; tastiera (link "vai al contenuto", focus intrappolato nei dialoghi, Esc, focus visibile ≥ 2 px); un `main`, un `banner`, navigazione con nome, nessun ID duplicato; movimento ridotto; testo 130 % senza overflow; informazioni mai solo a colore. `a11y.spec.ts` | **Lettori di schermo (VoiceOver/TalkBack) e prove con persone con disabilità: non eseguite.** axe copre solo una parte dei criteri. Il canvas della mappa non è accessibile: l'equivalente è l'elenco testuale. |
 | 19 | Nessuna richiesta di rete indispensabile offline | AUTOMATICO (offline simulato) | **Superato** | Dopo il download, riaprendo offline: **0** richieste verso altri domini, **0** richieste fallite, **0** risposte dalla rete (tutte dal service worker). Con una **CSP restrittiva** applicata davvero (e controprova che rileva le violazioni) l'app funziona per intero. `offline.spec.ts`, `csp.spec.ts`, `licenses.spec.ts` | Comportamento di altri browser. |
 | 20 | Verifica delle limitazioni iOS e documentazione di ciò che non può essere garantito | **Documentale** | **Documentato; NON verificato su iOS** | Banner e testi in app (mappa, Sicurezza → Limiti, installazione) e [KNOWN-LIMITS.md](KNOWN-LIMITS.md), [INSTALL.md](INSTALL.md): nessun tracciamento garantito con schermo bloccato; memoria Safari separata dall'app installata; sfratto dei dati; permesso GPS. `content.spec.ts`, `pwa.spec.ts` verificano che i testi ci siano. | Che quanto documentato sia esattamente ciò che fa iOS: **le limitazioni sono note dal comportamento di piattaforma, non sono state osservate qui.** |
+
+### 4.1 Criterio finale di accettazione (brief §15) — stato onesto
+
+| Criterio | Stato | Nota |
+|---|---|---|
+| Partire da Pergine tra le 07:00 e le 08:00 | **Soddisfatto** (software) | Slider 07:00–08:00 che ricalcola l'intera giornata; tempi di guida **stimati** e modificabili. |
+| Visitare la Cascata del Leno | **Parzialmente** | Tappa, passeggiata al ponte alla base (345 m) e programma presenti; il ponte è *inferito* dai dati OSM e il punto va verificato sul posto. |
+| Raggiungere Malga Bissina in auto | **Parzialmente** | Link alla navigazione stradale con le coordinate dei dati; accesso, tariffe e regolazione del Parco **non verificati** per ottobre 2026. |
+| Seguire il percorso escursionistico **verificato** fino al Rifugio Val di Fumo | **NON soddisfatto nel senso pieno** | Il percorso è mostrato e misurato, ma è **derivato da OpenStreetMap, non verificato sul campo né confrontato con la traccia SAT**: stato `source-derived`, dichiarato ovunque. |
+| Tornare al parcheggio | **Soddisfatto** (software) | Ritorno sulla stessa traccia o variante; "Torna al parcheggio"; ora limite sempre in vista. |
+| Semplice da installare e condividere | **Non dimostrato** | PWA con manifest e istruzioni; **nulla è pubblicato** e l'installazione su iPhone/Android **non è stata provata su dispositivi**. |
+| Funzionare senza connessione dopo un download completo e verificato | **Soddisfatto in simulazione (Chromium)** | Non provato su telefoni reali. |
+| Indicazioni affidabili, fonti consultabili, limiti espliciti, informazioni utili alla sicurezza | **Parzialmente** | Fonti registrate con stato di accesso (le quattro iniziali **non lette**), limiti espliciti in app e documenti, guida di emergenza; l'affidabilità è quella dei dati OSM e delle fonti secondarie. |
 
 ## 5. Prove aggiuntive eseguite (non richieste dal brief)
 
@@ -125,7 +138,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | `sun.test.ts` | 25 | alba/tramonto/crepuscolo contro riferimenti indipendenti (astral), orizzonte |
 | `weather.test.ts` | 9 | meteo: URL, risposta SIMULATA, riepilogo, errori, cache |
 
-### Test end-to-end (Playwright, Chromium): 63 superati su 63
+### Test end-to-end (Playwright, Chromium): 64 superati su 64
 
 **`a11y.spec.ts`**
 
@@ -170,6 +183,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - ✅ T14: fasi della giornata, pulsante principale contestuale e via del ritorno
 - ✅ navigazione stradale: link con le coordinate verificate dei dati, avvertenze sul parcheggio
 - ✅ esito della verifica sul rifugio: lo stato è dichiarato dall’utente e persiste
+- ✅ durante il trekking la Mappa mostra sempre l’ultimo orario prudenziale per iniziare il ritorno; al ritorno l’ora limite all’auto
 
 **`gps.spec.ts`**
 
