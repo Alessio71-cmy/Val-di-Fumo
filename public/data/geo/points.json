@@ -1,7 +1,7 @@
 {
  "meta": {
   "demZoom": 13,
-  "generatedAt": "2026-10-08T12:09:55Z",
+  "generatedAt": "2026-10-08T12:23:55Z",
   "osmRelease": "2026-09-23.1",
   "retrievedAt": "2026-10-08"
  },
@@ -43,7 +43,8 @@
    "offOutM": 385,
    "osm": [
     "r4557683@3"
-   ]
+   ],
+   "osmUpdated": "2020-08-10"
   },
   "dam-boazzo": {
    "chainLeno": 345,
@@ -61,7 +62,8 @@
    "offOutM": 6220,
    "osm": [
     "r4557593@2"
-   ]
+   ],
+   "osmUpdated": "2015-06-14"
   },
   "fall-chiese": {
    "chainLeno": 0,
@@ -79,7 +81,8 @@
    "offOutM": 19,
    "osm": [
     "n965276885@2"
-   ]
+   ],
+   "osmUpdated": "2013-10-06"
   },
   "fall-lakeside": {
    "chainLeno": 0,
@@ -97,7 +100,8 @@
    "offOutM": 66,
    "osm": [
     "n1111843019@2"
-   ]
+   ],
+   "osmUpdated": "2017-07-28"
   },
   "fall-leno": {
    "chainLeno": 342,
@@ -115,7 +119,8 @@
    "offOutM": 5419,
    "osm": [
     "n3011054285@2"
-   ]
+   ],
+   "osmUpdated": "2025-08-20"
   },
   "fountain-rifugio": {
    "chainLeno": 0,
@@ -133,7 +138,8 @@
    "offOutM": 1,
    "osm": [
     "n5000770906@3"
-   ]
+   ],
+   "osmUpdated": "2021-10-27"
   },
   "lake-bissina": {
    "chainLeno": 0,
@@ -151,7 +157,8 @@
    "offOutM": 338,
    "osm": [
     "r4557684@3"
-   ]
+   ],
+   "osmUpdated": null
   },
   "lake-boazzo": {
    "chainLeno": 345,
@@ -169,7 +176,8 @@
    "offOutM": 5484,
    "osm": [
     "r3953956@11"
-   ]
+   ],
+   "osmUpdated": null
   },
   "malga-breguzzo": {
    "chainLeno": 0,
@@ -187,7 +195,8 @@
    "offOutM": 8,
    "osm": [
     "w60145454@4"
-   ]
+   ],
+   "osmUpdated": "2018-03-19"
   },
   "malga-val-di-fumo": {
    "chainLeno": 0,
@@ -205,7 +214,8 @@
    "offOutM": 0,
    "osm": [
     "n5000770909@2"
-   ]
+   ],
+   "osmUpdated": "2017-10-05"
   },
   "park-boazzo-centrale": {
    "chainLeno": 0,
@@ -223,7 +233,8 @@
    "offOutM": 5075,
    "osm": [
     "n3759967757@2"
-   ]
+   ],
+   "osmUpdated": "2017-12-24"
   },
   "park-boazzo-nord": {
    "chainLeno": 0,
@@ -241,7 +252,8 @@
    "offOutM": 4653,
    "osm": [
     "n2989519691@1"
-   ]
+   ],
+   "osmUpdated": "2014-07-31"
   },
   "park-dam": {
    "chainLeno": 0,
@@ -259,7 +271,8 @@
    "offOutM": 27,
    "osm": [
     "w82897607@5"
-   ]
+   ],
+   "osmUpdated": "2017-07-29"
   },
   "park-dam-alt": {
    "chainLeno": 0,
@@ -277,7 +290,28 @@
    "offOutM": 266,
    "osm": [
     "w82897614@8"
-   ]
+   ],
+   "osmUpdated": "2023-09-03"
+  },
+  "pergine": {
+   "chainLeno": 0,
+   "chainOut": 6096,
+   "chainOutBank": 6145,
+   "cls": "town",
+   "eleDem": null,
+   "id": "pergine",
+   "kind": "locality",
+   "lat": 46.060529,
+   "lon": 11.240675,
+   "name": "Pergine Valsugana",
+   "offLenoM": 56702,
+   "offOutBankM": 52510,
+   "offOutM": 52510,
+   "osm": [
+    "n64776659@22",
+    "r46718@14"
+   ],
+   "osmUpdated": "2026-08-28"
   },
   "piana-val-di-fumo": {
    "chainLeno": 0,
@@ -295,7 +329,8 @@
    "offOutM": 738,
    "osm": [
     "n5035244590@3"
-   ]
+   ],
+   "osmUpdated": "2025-09-21"
   },
   "rifugio-val-di-fumo": {
    "chainLeno": 0,
@@ -313,7 +348,8 @@
    "offOutM": 14,
    "osm": [
     "w82967465@6"
-   ]
+   ],
+   "osmUpdated": "2023-06-26"
   },
   "sign-breguzzo": {
    "chainLeno": 0,
@@ -331,7 +367,8 @@
    "offOutM": 5,
    "osm": [
     "n5000770915@2"
-   ]
+   ],
+   "osmUpdated": "2017-10-07"
   },
   "toilets-dam": {
    "chainLeno": 0,
@@ -349,7 +386,8 @@
    "offOutM": 184,
    "osm": [
     "w506258604@2"
-   ]
+   ],
+   "osmUpdated": "2017-07-28"
   },
   "view-leno": {
    "chainLeno": 345,
@@ -367,7 +405,8 @@
    "offOutM": 5434,
    "osm": [
     "n2371177775@1"
-   ]
+   ],
+   "osmUpdated": "2013-07-02"
   },
   "water-boazzo": {
    "chainLeno": 0,
@@ -385,7 +424,8 @@
    "offOutM": 4463,
    "osm": [
     "n2376443057@1"
-   ]
+   ],
+   "osmUpdated": "2013-07-06"
   }
  }
 }

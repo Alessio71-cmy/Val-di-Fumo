@@ -30,6 +30,17 @@ def osm_ids(sources) -> list[str]:
     return sorted({s["record_id"] for s in (sources or []) if s.get("dataset") == "OpenStreetMap" and s.get("record_id")})
 
 
+def osm_upd(sources) -> str | None:
+    """Data (YYYY-MM-DD) dell'ultima modifica OSM tra le sorgenti OSM della feature."""
+    ds = [s.get("update_time") for s in (sources or []) if s.get("dataset") == "OpenStreetMap" and s.get("update_time")]
+    return max(ds)[:10] if ds else None
+
+
+def planet_version(sources) -> str | None:
+    vs = [s.get("version") for s in (sources or []) if s.get("dataset") == "OpenStreetMap" and s.get("version")]
+    return max(vs) if vs else None
+
+
 def primary_name(names) -> str | None:
     return (names or {}).get("primary") if names else None
 
@@ -80,6 +91,7 @@ def main() -> None:
             "access_restrictions", "sources", "geometry", "bbox"]
     t = overture.query("transportation", "segment", bbox, columns=cols, rfilter=pc.field("subtype") == "road")
     segs = []
+    planet_versions: set = set()
     for r in t.to_pylist():
         ids = osm_ids(r["sources"])
         if not ids:
@@ -91,7 +103,8 @@ def main() -> None:
             acc = [{"type": a.get("access_type"), "when": (a.get("when") or {}).get("mode") or (a.get("when") or {}).get("using")}
                    for a in r["access_restrictions"]]
         segs.append(feature(g, {"id": r["id"], "cls": r["class"], "sub": r["subclass"], "name": primary_name(r["names"]),
-                                "osm": ids, "fr": flag_ranges(r), "sr": surface_ranges(r), "conn": conns, "access": acc}))
+                                "osm": ids, "upd": osm_upd(r["sources"]), "fr": flag_ranges(r), "sr": surface_ranges(r), "conn": conns, "access": acc}))
+        planet_versions.add(planet_version(r["sources"]))
     segs.sort(key=lambda f: f["properties"]["id"])
     write("segments.geojson", segs)
 
@@ -108,7 +121,7 @@ def main() -> None:
         g = wkb.loads(r["geometry"])
         pt = g if g.geom_type == "Point" else g.representative_point()
         feats.append(feature(pt, {"kind": "infra", "cls": r["class"], "sub": r["subtype"], "name": primary_name(r["names"]),
-                                  "osm": ids, "geomType": g.geom_type, "id": r["id"]}))
+                                  "osm": ids, "upd": osm_upd(r["sources"]), "geomType": g.geom_type, "id": r["id"]}))
 
     water = overture.query("base", "water", bbox)
     for r in water.to_pylist():
@@ -117,7 +130,7 @@ def main() -> None:
             continue
         g = wkb.loads(r["geometry"])
         if r["class"] == "waterfall":
-            feats.append(feature(g, {"kind": "water", "cls": "waterfall", "name": primary_name(r["names"]), "osm": ids, "id": r["id"]}))
+            feats.append(feature(g, {"kind": "water", "cls": "waterfall", "name": primary_name(r["names"]), "osm": ids, "upd": osm_upd(r["sources"]), "id": r["id"]}))
 
     land = overture.query("base", "land", bbox)
     for r in land.to_pylist():
@@ -126,7 +139,7 @@ def main() -> None:
             continue
         g = wkb.loads(r["geometry"])
         if r["class"] in ("peak", "saddle", "cave_entrance") and g.geom_type == "Point":
-            feats.append(feature(g, {"kind": "land", "cls": r["class"], "name": primary_name(r["names"]), "osm": ids,
+            feats.append(feature(g, {"kind": "land", "cls": r["class"], "name": primary_name(r["names"]), "osm": ids, "upd": osm_upd(r["sources"]),
                                      "ele": r.get("elevation"), "id": r["id"]}))
 
     bld = overture.query("buildings", "building", bbox)
@@ -137,7 +150,15 @@ def main() -> None:
             continue
         g = wkb.loads(r["geometry"])
         feats.append(feature(g.representative_point(), {"kind": "building", "cls": r.get("class"), "name": nm, "osm": ids,
-                                                          "id": r["id"]}))
+                                                          "upd": osm_upd(r["sources"]), "id": r["id"]}))
+
+    # localita' di partenza (Pergine Valsugana): punto di etichetta OSM della citta'
+    div = overture.query("divisions", "division", (11.20, 46.03, 11.28, 46.09))
+    for r in div.to_pylist():
+        ids = osm_ids(r["sources"])
+        if ids and primary_name(r["names"]) == "Pergine Valsugana" and r.get("subtype") == "locality":
+            feats.append(feature(wkb.loads(r["geometry"]), {"kind": "locality", "cls": r.get("class"), "name": "Pergine Valsugana",
+                                                              "osm": ids, "upd": osm_upd(r["sources"]), "id": r["id"]}))
 
     feats.sort(key=lambda f: (f["properties"]["kind"], f["properties"].get("id", "")))
     write("features.geojson", feats)
@@ -176,9 +197,10 @@ def main() -> None:
             "dataset": "Overture Maps Foundation",
             "release": config.RELEASE,
             "bucket": config.OVERTURE_BUCKET,
-            "themes": ["transportation/segment", "base/infrastructure", "base/water", "base/land", "buildings/building"],
+            "themes": ["transportation/segment", "base/infrastructure", "base/water", "base/land", "buildings/building", "divisions/division"],
             "filter": "solo feature con sources.dataset == 'OpenStreetMap'",
             "retrievedAt": config.DATE_RETRIEVED,
+            "osmPlanetVersion": max(v for v in planet_versions if v),
             "bbox": list(bbox),
             "license": "Open Database License (ODbL) 1.0 — (c) OpenStreetMap contributors; Overture Maps Foundation",
             "attribution": "Contiene dati di OpenStreetMap (c) OpenStreetMap contributors, ODbL 1.0, tramite Overture Maps Foundation.",

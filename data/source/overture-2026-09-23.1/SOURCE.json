@@ -7,10 +7,12 @@
     "base/infrastructure",
     "base/water",
     "base/land",
-    "buildings/building"
+    "buildings/building",
+    "divisions/division"
   ],
   "filter": "solo feature con sources.dataset == 'OpenStreetMap'",
   "retrievedAt": "2026-10-08",
+  "osmPlanetVersion": "2026-09-09",
   "bbox": [
     10.44,
     45.96,

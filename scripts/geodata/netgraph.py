@@ -83,6 +83,7 @@ class Edge:
     access: list | None = None
     virtual: bool = False
     parent: int | None = None  # indice dell'edge originale (per edge virtuali)
+    upd: str | None = None  # data ultima modifica OSM (YYYY-MM-DD)
 
 
 @dataclass
@@ -125,7 +126,7 @@ class Graph:
                 continue
             for piece in iter_pieces(feat):
                 g.add(Edge(piece["a"], piece["b"], piece["geom"].length, piece["geom"], p["cls"], p.get("osm", []), piece["flags"],
-                           piece["surface"], p.get("name"), p["id"], p.get("access")))
+                           piece["surface"], p.get("name"), p["id"], p.get("access"), upd=p.get("upd")))
         return g
 
     # -- snap ---------------------------------------------------------------------------------------
@@ -152,7 +153,7 @@ class Graph:
                 else:  # nodo virtuale coincidente con un estremo: edge di lunghezza zero
                     p = e.geom.interpolate(da)
                     geom = LineString([(p.x, p.y), (p.x, p.y)])
-                g.add(Edge(na, nb, max(db - da, 0.0), geom, e.cls, e.osm, e.flags, e.surface, e.name, e.seg, e.access, True, ei))
+                g.add(Edge(na, nb, max(db - da, 0.0), geom, e.cls, e.osm, e.flags, e.surface, e.name, e.seg, e.access, True, ei, e.upd))
         return g, vnode
 
     # -- algoritmi ----------------------------------------------------------------------------------

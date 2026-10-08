@@ -81,6 +81,10 @@ class Dem:
     def to_lonlat(self, px: float, py: float) -> tuple[float, float]:
         return tilef_to_lonlat(self.tx0 + px / 256.0, self.ty0 + py / 256.0)
 
+    def contains(self, lon: float, lat: float) -> bool:
+        px, py = self.to_px(lon, lat)
+        return 1.0 <= px < self.arr.shape[1] - 2 and 1.0 <= py < self.arr.shape[0] - 2
+
     def sample(self, lon: float, lat: float) -> float:
         """Quota (m) per interpolazione bilineare; i centri pixel sono a +0.5."""
         px, py = self.to_px(lon, lat)
@@ -93,6 +97,26 @@ class Dem:
         c = self.arr[y0 + 1, x0]
         d = self.arr[y0 + 1, x0 + 1]
         return float((a * (1 - dx) + b * dx) * (1 - dy) + (c * (1 - dx) + d * dx) * dy)
+
+    def sample_many(self, lon: np.ndarray, lat: np.ndarray) -> np.ndarray:
+        """Quota bilineare vettoriale (NaN fuori dal mosaico)."""
+        n = 2**Z
+        fx = (np.asarray(lon) + 180.0) / 360.0 * n
+        fy = (1.0 - np.arcsinh(np.tan(np.radians(np.asarray(lat)))) / np.pi) / 2.0 * n
+        px = (fx - self.tx0) * 256.0 - 0.5
+        py = (fy - self.ty0) * 256.0 - 0.5
+        x0 = np.floor(px).astype(int)
+        y0 = np.floor(py).astype(int)
+        ok = (x0 >= 0) & (y0 >= 0) & (x0 < self.arr.shape[1] - 1) & (y0 < self.arr.shape[0] - 1)
+        x0c = np.clip(x0, 0, self.arr.shape[1] - 2)
+        y0c = np.clip(y0, 0, self.arr.shape[0] - 2)
+        dx, dy = px - x0c, py - y0c
+        a = self.arr[y0c, x0c]
+        b = self.arr[y0c, x0c + 1]
+        c = self.arr[y0c + 1, x0c]
+        e = self.arr[y0c + 1, x0c + 1]
+        z = (a * (1 - dx) + b * dx) * (1 - dy) + (c * (1 - dx) + e * dx) * dy
+        return np.where(ok, z, np.nan)
 
     def ground_px_m(self, lat: float) -> float:
         """Dimensione a terra (m) di un pixel Mercator allo zoom Z alla latitudine lat."""

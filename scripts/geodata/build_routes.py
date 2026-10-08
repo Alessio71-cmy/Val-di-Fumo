@@ -36,6 +36,7 @@ os.makedirs(OUT_GPX, exist_ok=True)
 # Punti dell'itinerario, SCELTI PER ID OSM (la coordinata viene letta dall'estrazione, mai digitata).
 # -------------------------------------------------------------------------------------------------
 KEY = {
+    "pergine": "r46718",              # Pergine Valsugana (punto di etichetta OSM della citta') — partenza
     "park-dam": "w82897607",          # parcheggio presso il Bar alla Diga (Malga Bissina) — area OSM
     "park-dam-alt": "w82897614",      # secondo parcheggio piu' in alto (area OSM)
     "toilets-dam": "w506258604",      # servizi igienici presso la diga
@@ -160,13 +161,15 @@ def build_route(g: ng.Graph, path, dem: Dem, name: str, rid: str, direction: str
         if e.length <= 0:
             continue
         segs.append({"from": round(cum), "to": round(cum + e.length), "cls": e.cls, "osm": e.osm,
-                     "bridge": "is_bridge" in e.flags, "surface": e.surface})
+                     "bridge": "is_bridge" in e.flags, "surface": e.surface, "upd": e.upd})
         cum += e.length
     # unisci tratti consecutivi con stessa classe/ponte/osm
     merged = []
     for s in segs:
         if merged and merged[-1]["cls"] == s["cls"] and merged[-1]["bridge"] == s["bridge"] and merged[-1]["osm"] == s["osm"]:
             merged[-1]["to"] = s["to"]
+            if s.get("upd") and (not merged[-1].get("upd") or s["upd"] > merged[-1]["upd"]):
+                merged[-1]["upd"] = s["upd"]
         else:
             merged.append(dict(s))
     prof_n = min(160, len(rs))
@@ -188,6 +191,8 @@ def build_route(g: ng.Graph, path, dem: Dem, name: str, rid: str, direction: str
         "profile": [[round(float(rs_chain[i])), round(float(sm[i]), 1)] for i in idxs],
         "tobler": [[round(float(rs_chain[i])), round(float(tob[i]), 2)] for i in idxs],
         "segments": merged,
+        "osmEditedRange": [min((s["upd"] for s in merged if s.get("upd")), default=None),
+                           max((s["upd"] for s in merged if s.get("upd")), default=None)],
     }
     if extra:
         route.update(extra)
@@ -201,7 +206,7 @@ def reverse_route(r: dict, rid: str, name: str, direction: str, dem: Dem) -> dic
     for lo, la, z, c in coords:
         new.append([lo, la, z, round(L - c)])
     segs = [{"from": round(L - s["to"]), "to": round(L - s["from"]), "cls": s["cls"], "osm": s["osm"], "bridge": s["bridge"],
-             "surface": s["surface"]} for s in r["segments"][::-1]]
+             "surface": s["surface"], "upd": s.get("upd")} for s in r["segments"][::-1]]
     prof = [[round(L - c), z] for c, z in r["profile"][::-1]]
     out = dict(r)
     out.update({"id": rid, "name": name, "direction": direction, "coords": new, "profile": prof, "segments": segs,
@@ -271,14 +276,15 @@ def main() -> None:
             raise SystemExit(f"ID OSM {rid} ('{key}') non trovato nell'estrazione: la release e' cambiata? Verificare.")
         lon, lat = feature_lonlat(ft)
         pr = ft["properties"]
-        pts[key] = {"id": key, "osm": pr["osm"], "name": pr.get("name"), "cls": pr.get("cls"), "kind": pr.get("kind"),
-                    "lon": round(lon, 6), "lat": round(lat, 6), "eleDem": round(dem.sample(lon, lat), 0)}
+        pts[key] = {"id": key, "osm": pr["osm"], "osmUpdated": pr.get("upd"), "name": pr.get("name"), "cls": pr.get("cls"), "kind": pr.get("kind"),
+                    "lon": round(lon, 6), "lat": round(lat, 6),
+                    "eleDem": round(dem.sample(lon, lat), 0) if dem.contains(lon, lat) else None}
     for key, rid in LAKES.items():
         ft = idx.get(rid)
         if ft is None:
             raise SystemExit(f"ID OSM {rid} ('{key}') non trovato")
         lon, lat = feature_lonlat(ft)
-        pts[key] = {"id": key, "osm": ft["properties"]["osm"], "name": ft["properties"].get("name"), "cls": ft["properties"].get("cls"),
+        pts[key] = {"id": key, "osm": ft["properties"]["osm"], "osmUpdated": None, "name": ft["properties"].get("name"), "cls": ft["properties"].get("cls"),
                     "kind": "water", "lon": round(lon, 6), "lat": round(lat, 6), "eleDem": round(dem.sample(lon, lat), 0)}
 
     snapper = graph.snapper()
@@ -503,7 +509,7 @@ def main() -> None:
     print(f"\nsezioni: diga→Breguzzo {len_A:.0f} m, Breguzzo→rifugio {len_B:.0f} m; variante sovrapposizione {chosen[2]:.0%}")
     print("\n=== PUNTI (progressiva sull'andata, distanza dal tracciato) ===")
     for k, p in sorted(pts.items(), key=lambda t: t[1]["chainOut"]):
-        print(f"{k:22s} lat={p['lat']:.5f} lon={p['lon']:.5f} ele~{p['eleDem']:.0f}  chain={p['chainOut']:5d} m  off={p['offOutM']:4d} m  {p['osm']}")
+        print(f"{k:22s} lat={p['lat']:.5f} lon={p['lon']:.5f} ele~{(p['eleDem'] or 0):.0f}  chain={p['chainOut']:5d} m  off={p['offOutM']:4d} m  {p['osm']}")
     print("\nPonti sull'andata:", [(b['fromM'], b['lengthM'], b['osm']) for b in bridges])
     print(f"Bivi: {len(merged_j)}")
     for j in merged_j:
