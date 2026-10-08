@@ -17,7 +17,7 @@ Alternative scartate:
 - **PMTiles/vector tiles Protomaps**: i server non sono raggiungibili da qui e non includerebbero comunque i tag necessari; avrebbero richiesto font (glyph) remoti.
 - **Etichette con glyph PBF**: evitate. I toponimi e i punti sono **elementi DOM** accessibili (pulsanti con `aria-label`), quindi nessun font remoto.
 
-Copertura limitata all'area necessaria (**≈ 9,9 × 12,5 km**, ≈ 2,4 MB totali) per un uso consapevole dello spazio. Tutti i file sono caricati dal thread principale e passati a MapLibre come oggetti (`data`), così **nessuna richiesta di rete** parte dai worker. Un `transformRequest` blocca ogni URL fuori origine.
+Copertura limitata all'area necessaria (**≈ 9,9 × 12,5 km**, ≈ 2,1 MB di mappa e 3,6 MB in tutto con l'app) per un uso consapevole dello spazio. Tutti i file sono caricati dal thread principale e passati a MapLibre come oggetti (`data`), così **nessuna richiesta di rete** parte dai worker. Un `transformRequest` blocca ogni URL fuori origine.
 
 **Fallback senza WebGL / senza pacchetto mappa**: mappa schematica SVG (stessi GeoJSON, stesso rilievo se presente), elenco testuale delle tappe, GPX.
 
@@ -25,7 +25,7 @@ Copertura limitata all'area necessaria (**≈ 9,9 × 12,5 km**, ≈ 2,4 MB total
 
 Vite · React 18 · TypeScript (strict) · MapLibre GL JS · CSS con design token · Service Worker scritto a mano (poche righe, controllo totale della verifica offline) · IndexedDB (wrapper di ~60 righe, nessuna libreria) · GeoJSON/GPX · Vitest (unit) · Playwright (E2E, Chromium).
 
-Niente routing library, niente state manager esterno: stato in `useReducer` + context; navigazione a schede con hash (`#/oggi`, `#/mappa`, …).
+Niente routing library, niente state manager esterno: stato in `useState` + context (`src/state/AppState.tsx`); navigazione a schede con hash (`#/oggi`, `#/mappa`, …).
 
 ## 3. Struttura del repository
 

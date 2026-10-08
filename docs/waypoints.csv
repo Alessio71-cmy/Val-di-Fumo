@@ -1,0 +1,23 @@
+id,nome,tipo,lat,lon,quota_dem_m,progressiva_andata_m,distanza_dalla_traccia_m,stato_validazione,affidabilita,ultima_verifica,ultima_modifica_osm,id_osm,fonti
+park-dam,Parcheggio presso la diga di Malga Bissina,parking,46.052050,10.513409,1807,0,27,source-derived,media,2026-10-08,2017-07-29,w82897607@5,osm-overture campiglio-parcheggio ladige-250 park4night-bissina
+malga-breguzzo,Malga Breguzzo,malga,46.070927,10.540559,1810,3494,8,source-derived,media,2026-10-08,2018-03-19,w60145454@4,osm-overture campiglio-rifugio italia-val-di-fumo
+sign-breguzzo,Tabella segnavia a Malga Breguzzo (OSM),junction,46.071169,10.540738,1812,3531,5,source-derived,bassa,2026-10-08,2017-10-07,n5000770915@2,osm-overture
+fall-chiese,Cascata sul torrente Chiese,waterfall,46.071698,10.541518,1814,3639,19,source-derived,bassa,2026-10-08,2013-10-06,n965276885@2,osm-overture campiglio-rifugio komoot-chiese
+malga-val-di-fumo,Malga Val di Fumo (ponte e bivio),junction,46.083538,10.558438,1884,5699,0,source-derived,media,2026-10-08,2017-10-05,n5000770909@2,osm-overture
+fountain-rifugio,Fontana presso il rifugio,fountain,46.084434,10.562667,1900,6091,1,unverified,bassa,2026-10-08,2021-10-27,n5000770906@3,osm-overture
+rifugio-val-di-fumo,Rifugio Val di Fumo (SAT),hut,46.084493,10.562531,1896,6096,14,source-derived,media,2026-10-08,2023-06-26,w82967465@6,osm-overture vt-rifugio planetmountain-rifugio montagnatv-gestore ladige-gestrice italia-val-di-fumo
+bridge-leno,Ponte alla base della Cascata del Leno,bridge,46.003338,10.511513,1205,,5408,source-derived,bassa,2026-10-08,,w228119292@4 w228119295@2 w228119296@2,osm-overture campiglio-leno
+dam-bissina,Diga di Malga Bissina,dam,46.053592,10.518904,1766,,385,source-derived,media,2026-10-08,2020-08-10,r4557683@3,osm-overture komoot-bissina
+dam-boazzo,Diga di Malga Boazzo,dam,45.996399,10.523303,1235,,6220,source-derived,media,2026-10-08,2015-06-14,r4557593@2,osm-overture
+fall-lakeside,Cascatella sul rio presso la pista del lago,waterfall,46.058119,10.513305,1863,,66,source-derived,bassa,2026-10-08,2017-07-28,n1111843019@2,osm-overture
+fall-leno,Cascata del Leno (nodo OSM alla sommità),waterfall,46.003320,10.509217,1431,,5419,source-derived,media,2026-10-08,2025-08-20,n3011054285@2,osm-overture dem-terrarium campiglio-leno
+lake-bissina,Lago di Malga Bissina,lake,46.061865,10.526675,1765,,338,source-derived,media,2026-10-08,,r4557684@3,osm-overture
+lake-boazzo,Lago di Malga Boazzo,lake,46.002662,10.516366,1205,,5484,source-derived,media,2026-10-08,,r3953956@11,osm-overture dem-terrarium
+park-boazzo-centrale,Parcheggio presso la Centrale di Boazzo,parking,46.006326,10.512187,1237,,5075,source-derived,media,2026-10-08,2017-12-24,n3759967757@2,osm-overture campiglio-leno suedtirol-live-rifugio
+park-boazzo-nord,Parcheggio nord di Boazzo,parking,46.010111,10.513762,1240,,4653,source-derived,media,2026-10-08,2014-07-31,n2989519691@1,osm-overture
+park-dam-alt,Parcheggio alto presso la diga,parking,46.050932,10.510649,1860,,266,source-derived,bassa,2026-10-08,2023-09-03,w82897614@8,osm-overture campiglio-parcheggio
+pergine,Pergine Valsugana,town,46.060529,11.240675,,,52510,source-derived,media,2026-10-08,2026-08-28,n64776659@22 r46718@14,osm-overture
+piana-val-di-fumo,Piana della Val di Fumo,landscape,46.090530,10.566615,1899,,738,source-derived,bassa,2026-10-08,2025-09-21,n5035244590@3,osm-overture suedtirol-live-rifugio
+toilets-dam,Servizi igienici presso la diga,toilets,46.051505,10.511461,1857,,184,unverified,bassa,2026-10-08,2017-07-28,w506258604@2,osm-overture
+view-leno,Punto panoramico presso la sommità della cascata,viewpoint,46.003177,10.509380,1418,,5434,source-derived,bassa,2026-10-08,2013-07-02,n2371177775@1,osm-overture
+water-boazzo,Punto acqua (Boazzo),fountain,46.012083,10.520393,1527,,4463,unverified,bassa,2026-10-08,2013-07-06,n2376443057@1,osm-overture

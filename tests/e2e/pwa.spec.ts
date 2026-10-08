@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { controllerBuildId, openApp, prepareTrip, serveDir, tab, waitForSwControl } from './helpers';
+import { controllerBuildId, openApp, openFold, prepareTrip, serveDir, tab, waitForSwControl } from './helpers';
 
 /** Test AUTOMATICI su Chromium: manifest, installabilità, service worker, verifica del pacchetto offline, aggiornamento. */
 
@@ -52,12 +52,12 @@ test('"pronto per l’uso offline" compare solo dopo download e verifica; mai pr
   await expect(page.getByTestId('chip-offline')).toContainText(/incompleto|Riapri/);
   expect(await page.getByText('Offline pronto').count()).toBe(0);
   await tab(page, 'sicurezza');
-  await page.getByText('Mappe e uso offline').click();
+  await openFold(page, 'sec-offline');
   await expect(page.getByTestId('offline-state')).not.toHaveText('Pronto per l’uso offline');
   await prepareTrip(page);
   await expect(page.getByTestId('chip-offline')).toContainText('Offline pronto');
   await tab(page, 'sicurezza');
-  await page.getByText('Mappe e uso offline').click();
+  await openFold(page, 'sec-offline');
   await expect(page.getByTestId('offline-state')).toHaveText('Pronto per l’uso offline');
   await expect(page.getByText(/Ultima verifica/).first()).toBeVisible();
   // il sito chiede l'archiviazione persistente (iOS/Android possono comunque svuotare la cache sotto pressione)
@@ -83,7 +83,7 @@ test('controprova: una risorsa della mappa manomessa nella cache viene scoperta 
   // la verifica profonda automatica (una volta per sessione) lo rileva senza che l'utente faccia nulla
   await expect(page.getByTestId('chip-offline')).toContainText('Offline incompleto', { timeout: 15_000 });
   await tab(page, 'sicurezza');
-  await page.getByText('Mappe e uso offline').click();
+  await openFold(page, 'sec-offline');
   await expect(page.getByTestId('offline-state')).toHaveText('Parziale: mancano risorse');
   await expect(page.getByText(/danneggiate/).first()).toBeVisible();
 
@@ -141,7 +141,7 @@ test('aggiornamento del service worker: la nuova versione attende la conferma de
 
     // l'utente conferma → nuova versione attiva, vecchia cache del nucleo rimossa
     await tab(page, 'sicurezza');
-    await page.getByText('Mappe e uso offline').click();
+    await openFold(page, 'sec-offline');
     const origin0 = await page.evaluate(() => performance.timeOrigin);
     await page.getByRole('button', { name: /Applica l’aggiornamento dell’app/ }).click();
     // si attende il ricaricamento della pagina SENZA interrogare il vecchio service worker: ogni messaggio o richiesta gli
@@ -166,4 +166,46 @@ test('aggiornamento del service worker: la nuova versione attende la conferma de
     fs.rmSync(tmp, { recursive: true, force: true });
     void testInfo;
   }
+});
+
+test('installazione: stato, pulsante "Installa l’app" (evento beforeinstallprompt SIMULATO) e istruzioni per iPhone/Safari', async ({ page, browser }) => {
+  await openApp(page);
+  // browser (non installata): istruzioni generiche per Android
+  await expect(page.getByTestId('install-line')).toContainText('Aperta nel browser');
+  await expect(page.getByTestId('install-button')).toHaveCount(0);
+  // Chrome offre l'installazione: l'app raccoglie l'evento e mostra il pulsante SOLO su richiesta dell'utente
+  await page.evaluate(() => {
+    const ev = Object.assign(new Event('beforeinstallprompt', { cancelable: true }), {
+      prompt: async () => {
+        (window as unknown as { __prompted: number }).__prompted = ((window as unknown as { __prompted?: number }).__prompted ?? 0) + 1;
+      },
+      userChoice: Promise.resolve({ outcome: 'accepted' as const }),
+    });
+    window.dispatchEvent(ev);
+  });
+  await expect(page.getByTestId('install-button')).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { __prompted?: number }).__prompted ?? 0)).toBe(0); // nessuna finestra mostrata da sola
+  await page.getByTestId('install-button').click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __prompted?: number }).__prompted ?? 0)).toBe(1);
+  await expect(page.getByTestId('install-button')).toHaveCount(0); // l'evento si usa una volta sola
+  await tab(page, 'sicurezza');
+  await openFold(page, 'sec-offline');
+  await expect(page.getByTestId('install-state')).toContainText('Non installata');
+
+  // iPhone con Safari (user agent emulato su Chromium: prova i TESTI, non il comportamento di iOS)
+  const safari = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+  const c1 = await browser.newContext({ userAgent: safari, viewport: { width: 390, height: 844 } });
+  const p1 = await c1.newPage();
+  await p1.goto('/');
+  await expect(p1.getByTestId('install-line')).toContainText('Condividi → “Aggiungi alla schermata Home”', { timeout: 20_000 });
+  await expect(p1.getByTestId('install-line')).toContainText('prepara il viaggio dall’icona');
+  await c1.close();
+
+  // iPhone con Chrome: l'app consiglia Safari invece di affermare cose non verificabili
+  const chromeIos = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/126.0.6478.153 Mobile/15E148 Safari/604.1';
+  const c2 = await browser.newContext({ userAgent: chromeIos, viewport: { width: 390, height: 844 } });
+  const p2 = await c2.newPage();
+  await p2.goto('/');
+  await expect(p2.getByTestId('install-line')).toContainText('apri lo stesso indirizzo in Safari', { timeout: 20_000 });
+  await c2.close();
 });

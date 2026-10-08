@@ -195,3 +195,22 @@ test('esito della verifica sul rifugio: lo stato è dichiarato dall’utente e p
   await openApp(page);
   await expect(page.getByTestId('hut-card')).toContainText('confermato aperto');
 });
+
+test('durante il trekking la Mappa mostra sempre l’ultimo orario prudenziale per iniziare il ritorno; al ritorno l’ora limite all’auto', async ({ page }) => {
+  await openApp(page);
+  await expect(page.getByTestId('hud-strip')).toHaveCount(0); // prima del trekking non serve
+  await openSchedule(page);
+  const latest = (await page.getByTestId('latest-return').innerText()).trim();
+  await page.getByRole('button', { name: /← Oggi/ }).click();
+  for (let i = 0; i < 5; i++) await page.getByTestId('advance').click(); // fino a "Trekking: andata"
+  await expect(page.getByTestId('phase-label')).toHaveText('Trekking: andata');
+  await tab(page, 'mappa');
+  await expect(page.getByTestId('hud-strip')).toContainText(`Ritorno entro ${latest}`);
+  await expect(page.getByTestId('hud-strip')).toContainText(/margine/);
+  await tab(page, 'oggi');
+  await page.getByTestId('advance').click(); // sono al rifugio
+  await page.getByTestId('advance').click(); // inizio il ritorno
+  await expect(page.getByTestId('phase-label')).toHaveText('Ritorno a piedi');
+  await tab(page, 'mappa');
+  await expect(page.getByTestId('hud-strip')).toContainText(/All’auto entro \d\d:\d\d · tramonto \d\d:\d\d/);
+});

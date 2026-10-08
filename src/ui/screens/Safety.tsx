@@ -252,9 +252,20 @@ export function SafetyScreen({ focus }: { focus?: GotoOpts['section'] }) {
         </div>
         {sw.updateAvailable ? <p className="small muted">Fallo a casa, non durante l’escursione.</p> : null}
         {prepare.report ? <p className="small">{prepare.report.ok ? `Ultima verifica OK: ${prepare.report.checked} risorse.` : prepare.error}</p> : null}
-        <h3 style={{ marginTop: 12 }}>Installazione</h3>
-        <p className="small"><strong>iPhone (Safari):</strong> apri l’indirizzo https dell’app → tasto Condividi → “Aggiungi alla schermata Home”. Aprila dalla Home, poi “Prepara il viaggio”.</p>
+        <h3 style={{ marginTop: 12 }}>Installazione su questo dispositivo</h3>
+        <p className="small" data-testid="install-state">
+          <strong>{a.install.standalone ? 'Installata: aperta dalla schermata Home.' : 'Non installata: aperta nel browser.'}</strong>
+        </p>
+        {a.install.canPrompt && !a.install.standalone ? (
+          <button className="btn" onClick={async () => { const r = await a.installApp(); a.showToast(r === 'accepted' ? 'Installazione avviata' : r === 'dismissed' ? 'Installazione annullata' : 'Installazione non disponibile: usa il menu del browser'); }}>
+            <Icon name="download" /> Installa l’app
+          </button>
+        ) : null}
+        <p className="small"><strong>iPhone:</strong> usa <strong>Safari</strong> (con altri browser “Aggiungi alla schermata Home” dipende dalla versione di iOS). Apri l’indirizzo https → tasto Condividi → “Aggiungi alla schermata Home”, poi <strong>apri l’app dall’icona e premi “Prepara il viaggio” da lì</strong>: l’app installata ha una memoria separata da quella di Safari. Sui siti non installati Safari può cancellare i dati dopo alcuni giorni senza uso.</p>
         <p className="small"><strong>Android (Chrome):</strong> menu ⋮ → “Installa app” (o “Aggiungi a schermata Home”). Poi “Prepara il viaggio”.</p>
+        {a.install.platform === 'ios' && !a.install.iosSafari && !a.install.standalone ? (
+          <div className="card alert-warning small">Non stai usando Safari: se non trovi “Aggiungi alla schermata Home” nel menu Condividi, apri questo indirizzo in Safari.</div>
+        ) : null}
       </Fold>
 
       <Fold id="sec-track" title="Traccia GPX: stato, esporta, confronta" icon="route" open={focus === 'traccia'}>
@@ -301,7 +312,7 @@ export function SafetyScreen({ focus }: { focus?: GotoOpts['section'] }) {
         <p className="small muted">
           Se hai scaricato un GPX ufficiale (SAT, Parco, trentino.com) importalo qui: l’app misura lo scostamento dalla traccia incorporata, tutto sul telefono. Non sostituisce la verifica sul campo.
         </p>
-        <input type="file" accept=".gpx,application/gpx+xml,text/xml,application/xml" onChange={(e) => void onImport(e.target.files?.[0])} aria-label="Scegli un file GPX da confrontare" data-testid="gpx-input" />
+        <input type="file" onChange={(e) => void onImport(e.target.files?.[0])} aria-label="Scegli un file GPX da confrontare" data-testid="gpx-input" />
         {gpxErr ? <div className="card alert-danger" role="alert" style={{ marginTop: 8 }}>{gpxErr}</div> : null}
         {cmp ? (
           <div className={`card ${cmp.result.verdict === 'coerente' ? 'alert-ok' : cmp.result.verdict === 'parzialmente-coerente' ? 'alert-warning' : 'alert-danger'}`} style={{ marginTop: 8 }} data-testid="gpx-result" role="status">

@@ -207,10 +207,25 @@ export function TodayScreen({ goto, showSchedule, setShowSchedule }: { goto: Got
         </h2>
         <p className="small">{offline?.reason}</p>
         {offline?.record ? <p className="small muted">Ultima verifica su questo dispositivo: {new Date(offline.record.verifiedAt).toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' })}.</p> : null}
+        <p className="small" data-testid="install-line">
+          <Icon name="info" size={16} />{' '}
+          {a.install.standalone
+            ? 'App installata: aperta dalla schermata Home.'
+            : a.install.platform === 'ios'
+              ? a.install.iosSafari
+                ? 'Aperta nel browser. Su iPhone installa l’app: Condividi → “Aggiungi alla schermata Home”, poi prepara il viaggio dall’icona (Safari può cancellare i dati dei siti non installati).'
+                : 'Aperta nel browser. Su iPhone l’installazione è affidabile da Safari: se qui non trovi “Aggiungi alla schermata Home”, apri lo stesso indirizzo in Safari.'
+              : 'Aperta nel browser: installa l’app per usarla come le altre (menu del browser → “Installa app”).'}
+        </p>
         <div className="row wrap">
           <button className="btn small" onClick={() => setSheet('prepare')}>
             <Icon name="download" /> {offline?.state === 'ready' ? 'Ripeti verifica' : 'Prepara il viaggio'}
           </button>
+          {a.install.canPrompt && !a.install.standalone ? (
+            <button className="btn secondary small" onClick={() => void a.installApp()} data-testid="install-button">
+              <Icon name="download" /> Installa l’app
+            </button>
+          ) : null}
           <button className="btn ghost small" onClick={() => goto('sicurezza', { section: 'offline' })}>Dettagli</button>
         </div>
       </section>

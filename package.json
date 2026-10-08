@@ -13,7 +13,9 @@
     "test:watch": "vitest",
     "test:e2e": "npm run build && playwright test",
     "docs": "python3 scripts/geodata/render_docs.py",
-    "test:all": "npm run typecheck && vitest run && npm run test:e2e"
+    "test:all": "npm run typecheck && vitest run && npm run test:e2e",
+    "docs:itinerary": "vite-node tools/render-itinerary.ts",
+    "docs:tests": "node tools/render-test-list.mjs"
   },
   "dependencies": {
     "maplibre-gl": "4.7.1",

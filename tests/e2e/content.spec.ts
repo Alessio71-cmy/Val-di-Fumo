@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openApp, tab } from './helpers';
+import { openApp, openFold, tab } from './helpers';
 
 /** Test AUTOMATICI: ogni elemento geografico/itinerario espone i campi di provenienza richiesti dal brief (fonte, stato, data di verifica). */
 
@@ -78,12 +78,12 @@ test('Oggi: dichiara che la traccia deriva da OpenStreetMap, non è verificata s
 test('Sicurezza: guida di emergenza, checklist persistente, limiti dell’app e limitazioni iOS dichiarate', async ({ page }) => {
   await openApp(page);
   await tab(page, 'sicurezza');
-  await page.getByText('Emergenze e soccorso').click();
+  await openFold(page, 'sec-emerg');
   await expect(page.getByText(/Senza copertura la chiamata può non partire/)).toBeVisible();
   await expect(page.getByTestId('call-112')).toHaveAttribute('href', 'tel:112');
   await expect(page.getByText(/Numeri da verificare PRIMA di partire/)).toBeVisible();
 
-  await page.getByText('Checklist equipaggiamento').click();
+  await openFold(page, 'sec-check');
   const boxes = page.locator('details#sec-check input[type=checkbox]');
   expect(await boxes.count()).toBeGreaterThanOrEqual(15);
   await boxes.nth(0).check();
@@ -92,11 +92,11 @@ test('Sicurezza: guida di emergenza, checklist persistente, limiti dell’app e 
   await page.reload();
   await openApp(page);
   await tab(page, 'sicurezza');
-  await page.getByText('Checklist equipaggiamento').click();
+  await openFold(page, 'sec-check');
   await expect(page.locator('details#sec-check input[type=checkbox]').nth(0)).toBeChecked();
   await expect(page.locator('details#sec-check input[type=checkbox]').nth(2)).not.toBeChecked();
 
-  await page.getByText('Limiti dell’app').click();
+  await openFold(page, 'sec-limits');
   const limits = page.locator('details#sec-limits');
   await expect(limits).toContainText(/iPhone|iOS/);
   await expect(limits).toContainText(/schermo bloccato|secondo piano/);

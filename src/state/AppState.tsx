@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { TRIP_CONFIG } from '../config/trip.config';
 import { loadGeo, loadMapPack, type GeoBundle, type Loaded, type MapPack } from '../data/loader';
-import { buildTrip, turnaroundOptions } from '../data/trip';
+import { buildTrip } from '../data/trip';
 import type { GPSPosition, Trip } from '../domain/types';
 import { guidancePolicy } from '../domain/validation';
 import { computeNav, routeWaypoints, type NavResult } from '../geo/nav';
@@ -12,9 +12,11 @@ import { GpsController, INITIAL_GPS_STATE, type GpsState } from '../gps/controll
 import { classifyAccuracy, classifyAge, isUsableFix } from '../gps/quality';
 import { downloadAndVerify, requestPersistence, verifyAll, type PackProgress, type VerifyReport } from '../offline/pack';
 import { fetchManifest } from '../offline/manifest';
+import { promptInstall, readInstallState, startInstallCapture, subscribeInstall, type InstallState } from '../offline/install';
 import { evaluateReadiness, type ReadinessInfo } from '../offline/status';
 import { registerServiceWorker, subscribeSw, type SwState } from '../offline/swClient';
-import { buildSchedule, type ScheduleResult, type ScheduleInput } from '../schedule/engine';
+import { buildSchedule, type ScheduleResult } from '../schedule/engine';
+import { buildScheduleInput } from '../schedule/input';
 import { DEFAULT_PREFS, loadPrefs, resetPrefs, savePrefs, type Prefs } from '../storage/prefs';
 import { fetchWeather, isWeatherStale, loadCachedWeather, saveWeather, summarizeWeather, type WeatherSnapshot, type WeatherSummary } from '../weather/openmeteo';
 import { defaultRouteForPhase, PHASE_BY_ID, phaseFromEvents, type Phase } from './phase';
@@ -80,6 +82,8 @@ interface AppContextValue {
   prepareTrip: () => Promise<void>;
   verifyNow: () => Promise<VerifyReport | null>;
   sw: SwState;
+  install: InstallState;
+  installApp: () => Promise<'accepted' | 'dismissed' | 'unavailable'>;
   mapPack: Loaded<MapPack> | null;
   loadMap: () => void;
   toast: string | null;
@@ -107,7 +111,6 @@ function weatherErrorText(e: unknown): string {
   return m;
 }
 
-const FALLBACK = TRIP_CONFIG.fallbackMin;
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -234,37 +237,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ---- programma ----
   const schedule = useMemo<ScheduleResult | null>(() => {
     if (!sun) return null;
-    const legs = geo?.drive.ok ? geo.drive.data.legs : null;
-    const out = trip?.routes['route-out'];
-    const back = trip?.routes['route-back'];
-    const input: ScheduleInput = {
-      departureMin: prefs.departureMin,
-      paceFactor: TRIP_CONFIG.paceFactors[prefs.pace],
-      driveMin: {
-        toBoazzo: prefs.driveOverrides.toBoazzo ?? legs?.['pergine-boazzo'].nominalMinutes ?? FALLBACK.toBoazzo,
-        boazzoToDam: prefs.driveOverrides.boazzoToDam ?? legs?.['boazzo-dam'].nominalMinutes ?? FALLBACK.boazzoToDam,
-        home: prefs.driveOverrides.home ?? legs?.['dam-pergine'].nominalMinutes ?? FALLBACK.home,
-      },
-      lenoStopMin: TRIP_CONFIG.durations.lenoStopMin,
-      prepMin: TRIP_CONFIG.durations.prepMin,
-      lunchMin: TRIP_CONFIG.durations.lunchMin,
-      hikeOutBaseMin: out?.nominalMin ?? FALLBACK.hikeOut,
-      hikeBackBaseMin: back?.nominalMin ?? FALLBACK.hikeBack,
-      extraStopsOutMin: TRIP_CONFIG.durations.extraStopsOutMin,
-      extraStopsBackMin: TRIP_CONFIG.durations.extraStopsBackMin,
-      marginFraction: TRIP_CONFIG.safety.marginFraction,
-      lightMarginMin: TRIP_CONFIG.safety.lightMarginMin,
-      sunsetMin: sun.sunsetMin,
-      civilDuskMin: sun.civilDuskMin,
-      actuals: prefs.actuals,
-      nowMin: isTripDay ? Math.round(minutesSinceLocalMidnight(nowMs, tripDate, tz)) : undefined,
-      turnarounds: trip ? turnaroundOptions(trip) : [],
-      skipLeno: prefs.skipLeno,
-      tightMarginMin: TRIP_CONFIG.safety.tightMarginMin,
-      sufficientMarginMin: TRIP_CONFIG.safety.sufficientMarginMin,
-    };
-    return buildSchedule(input);
-  }, [sun, geo, trip, prefs.departureMin, prefs.pace, prefs.driveOverrides, prefs.actuals, prefs.skipLeno, isTripDay, nowMs, tripDate, tz]);
+    return buildSchedule(
+      buildScheduleInput({
+        prefs,
+        geo,
+        trip,
+        sunsetMin: sun.sunsetMin,
+        civilDuskMin: sun.civilDuskMin,
+        nowMin: isTripDay ? Math.round(minutesSinceLocalMidnight(nowMs, tripDate, tz)) : undefined,
+      }),
+    );
+  }, [sun, geo, trip, prefs.departureMin, prefs.pace, prefs.driveOverrides, prefs.actuals, prefs.skipLeno, isTripDay, nowMs, tripDate, tz]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- GPS ----
   const gpsRef = useRef<GpsController | null>(null);
@@ -430,6 +413,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return offlineRaw;
   }, [offlineRaw, deepReport]);
   const [sw, setSw] = useState<SwState>({ supported: false, registered: false, controlled: false, updateAvailable: false });
+  const [install, setInstall] = useState<InstallState>(readInstallState);
+  useEffect(() => {
+    startInstallCapture();
+    return subscribeInstall(setInstall);
+  }, []);
+  const installApp = useCallback(() => promptInstall(), []);
   const [prepare, setPrepare] = useState<PrepareState>({ running: false, progress: null, report: null, error: null, persisted: null });
   const refreshOffline = useCallback(async () => {
     setOffline(await evaluateReadiness());
@@ -534,6 +523,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     prepareTrip,
     verifyNow,
     sw,
+    install,
+    installApp,
     mapPack,
     loadMap,
     toast,

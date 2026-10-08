@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { openApp, tab } from './helpers';
+import { openApp, openFold, tab } from './helpers';
 
 /**
  * T16 — controllo delle licenze cartografiche. Verifiche AUTOMATICHE su attribuzioni mostrate, origine dei dati e assenza di
@@ -18,7 +18,7 @@ test('attribuzioni visibili: mappa e schermata "Fonti, licenze e attribuzioni"',
   await expect(attrib).toContainText('ODbL');
   await expect(attrib).toContainText('EU-DEM');
   await tab(page, 'sicurezza');
-  await page.getByText('Fonti, licenze e attribuzioni').click();
+  await openFold(page, 'sec-sources');
   const body = page.locator('details#sec-sources');
   for (const t of ['OpenStreetMap contributors', 'ODbL 1.0', 'Overture Maps', 'Copernicus', 'EU-DEM', 'MapLibre', 'BSD-3-Clause', 'Open-Meteo', 'CC BY 4.0']) {
     await expect(body, `manca "${t}"`).toContainText(t);
@@ -41,7 +41,7 @@ test('le tracce GPX (statiche ed esportate) riportano autore OSM e licenza ODbL 
   // esportazione dall'app
   await openApp(page);
   await tab(page, 'sicurezza');
-  await page.getByText('Traccia GPX: stato, esporta, confronta').click();
+  await openFold(page, 'sec-track');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Scarica GPX: Andata (diga → rifugio)' }).click()]);
   expect(dl.suggestedFilename()).toBe('andata-diga-rifugio.gpx');
   const xml = fs.readFileSync((await dl.path()) as string, 'utf8');

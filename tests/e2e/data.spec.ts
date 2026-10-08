@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
-import { openApp, tab } from './helpers';
+import { openApp, openFold, tab } from './helpers';
 
 /**
  * T15 — gestione di dati incompleti, e ripiego quando WebGL manca o va perso.
@@ -36,7 +36,7 @@ test('traccia assente (404): avviso chiaro, mappa e programma non inventano null
   await page.getByRole('button', { name: /elenco testuale delle tappe/ }).click();
   await expect(page.getByTestId('timeline').locator('li')).toHaveCount(9); // il testo dell'itinerario resta consultabile
   await tab(page, 'sicurezza');
-  await page.getByText('Emergenze e soccorso').click();
+  await openFold(page, 'sec-emerg');
   await expect(page.getByTestId('call-112')).toBeVisible();
   expect(errors).toEqual([]);
 });

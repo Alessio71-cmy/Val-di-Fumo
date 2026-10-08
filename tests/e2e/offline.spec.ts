@@ -1,7 +1,7 @@
 import { chromium, devices, expect, test, type BrowserContext, type Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { logNetwork, openApp, parseDistance, pointAtChain, prepareTrip, rawPoint, routeLength, setGeo, tab, waitForSwControl } from './helpers';
+import { logNetwork, openApp, openFold, parseDistance, pointAtChain, prepareTrip, rawPoint, routeLength, setGeo, tab, waitForSwControl } from './helpers';
 
 /**
  * Test AUTOMATICI su Chromium. La "modalità aereo" è SIMULATA con BrowserContext.setOffline(true) e la "chiusura e riapertura
@@ -98,7 +98,7 @@ test('T4–T8, T19: download verificato → offline simulato → riapertura → 
     await expect(page.getByTestId('timeline').locator('li')).toHaveCount(9);
     // sicurezza: guida di emergenza consultabile offline
     await tab(page, 'sicurezza');
-    await page.getByText('Emergenze e soccorso').click();
+    await openFold(page, 'sec-emerg');
     await expect(page.getByTestId('emergency-text')).toContainText('EMERGENZA');
     await expect(page.getByTestId('call-112')).toHaveAttribute('href', 'tel:112');
 

@@ -6,3 +6,4 @@ pillow>=10
 shapely>=2.0
 pyproj>=3.6
 contourpy>=1.2
+astral>=3.2

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { offset, openApp, parseDistance, pointAtChain, rawPoint, readStoredPrefs, routeLength, setGeo, tab } from './helpers';
+import { offset, openApp, openFold, parseDistance, pointAtChain, rawPoint, readStoredPrefs, routeLength, setGeo, tab } from './helpers';
 
 /**
  * SIMULAZIONI su Chromium con geolocalizzazione emulata (BrowserContext.setGeolocation / permessi / override di navigator.geolocation).
@@ -57,7 +57,7 @@ test('nessuna lettura della posizione prima del consenso esplicito', async ({ pa
     .poll(async () => ((await readStoredPrefs(page))?.lastPosition as { lat: number } | null | undefined)?.lat ?? null, { timeout: 10_000 })
     .toBeCloseTo(pointAtChain(500).lat, 4);
   await tab(page, 'sicurezza');
-  await page.getByText('Stato GPS e posizione').click();
+  await openFold(page, 'sec-gps');
   await expect(page.getByTestId('gps-last')).toContainText('±');
   await page.getByRole('button', { name: /Cancella posizione, orari e preferenze/ }).click();
   await expect.poll(async () => (await readStoredPrefs(page))?.lastPosition ?? null).toBeNull();
@@ -200,7 +200,7 @@ test('fuori percorso: avviso sobrio solo con fix preciso e persistente; sparisce
 
   // disattivando gli avvisi il banner non compare più
   await tab(page, 'sicurezza');
-  await page.getByText('Stato GPS e posizione').click();
+  await openFold(page, 'sec-gps');
   await page.getByLabel(/Avviso di possibile allontanamento/).uncheck();
   await tab(page, 'mappa');
   await setGeo(context, off(5), 8);

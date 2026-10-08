@@ -13,8 +13,8 @@
 Durante il trekking la schermata principale (Mappa) risponde subito a: **Dove sono? · Dove devo andare? · Quanto manca?** Tre riquadri grandi e leggibili sopra la mappa:
 
 1. *Dove sono*: stato GPS (precisione) e distanza dalla traccia ("sulla traccia" / "42 m dalla traccia" / "posizione imprecisa").
-2. *Dove devo andare*: prossimo punto (nome) con distanza **lungo il percorso**, e bussola verso la direzione di marcia.
-3. *Quanto manca*: distanza residua sul percorso e tempo indicativo, con ora limite per il ritorno quando rilevante.
+2. *Dove devo andare*: prossimo punto (nome) con distanza **lungo il percorso** e direzione della traccia in punti cardinali ("traccia verso NE"; nessuna freccia/bussola ricavata dal GPS in movimento, per evitare falsi allarmi).
+3. *Quanto manca*: distanza residua sul percorso e tempo indicativo al prossimo punto. Durante il trekking una **striscia** sotto i riquadri mostra sempre l'**ultimo orario prudenziale per iniziare il ritorno** e il margine (al ritorno: ora limite all'auto e tramonto).
 
 ## 3. Fasi della giornata e pulsante contestuale
 
@@ -24,13 +24,14 @@ Durante il trekking la schermata principale (Mappa) risponde subito a: **Dove so
 | `drive-out` | trasferimento Pergine → Boazzo | **Apri navigazione stradale** |
 | `leno` | sosta alla Cascata del Leno | **Visualizza percorso** (al ponte alla base) |
 | `drive-dam` | trasferimento Boazzo → diga | **Apri navigazione stradale** |
+| `trek-prep` | preparazione al trekking alla diga | **Visualizza percorso** |
 | `trek-out` | andata a piedi | **Visualizza percorso** |
 | `hut` | al rifugio / pranzo | **Valuta il ritorno** (mostra l'ora limite) |
 | `trek-back` | ritorno a piedi | **Torna al parcheggio** |
 | `drive-home` | rientro in auto | **Apri navigazione stradale** |
 | `done` | fine | — |
 
-La fase è **sempre scelta dall'utente** ("Registra: sono partito / arrivato / ripartito…"). L'app può *suggerire* (es. "Sei vicino al parcheggio della diga: iniziare il trekking?") ma **non cambia fase da sola**. Ogni registrazione salva l'ora effettiva (modificabile) e ricalcola il programma.
+La fase è **sempre scelta dall'utente** ("Registra: sono partito / arrivato / ripartito…"). L'app **non cambia fase da sola**. (Il suggerimento automatico di cambio fase, ipotizzato in origine, **non è stato implementato**.) Ogni registrazione salva l'ora effettiva (modificabile) e ricalcola il programma.
 
 ## 4. Le cinque sezioni
 
@@ -75,8 +76,22 @@ Vedi stati in `01-research-report.md §1.3`. In pratica:
 
 ## 7. Design e accessibilità
 
-Mobile-first, contrasto elevato, pulsanti ≥ 48 px, testi brevi, terminologia corretta (sentiero, segnavia, malga, bivio), icone coerenti **sempre con etichetta testuale**, colori con valore funzionale ma **mai unico veicolo** (icona + testo), nessuna animazione superflua (`prefers-reduced-motion` rispettato), tema chiaro predefinito per la luce solare con **tema alto contrasto** e **tema scuro** selezionabili, dimensione del testo regolabile, `lang="it"`, struttura semantica, focus visibile.
+Mobile-first, contrasto elevato, bersagli di tocco ≥ 44 px (pulsanti principali 52–64 px), testi brevi, terminologia corretta (sentiero, segnavia, malga, bivio), icone coerenti **sempre con etichetta testuale**, colori con valore funzionale ma **mai unico veicolo** (icona + testo), nessuna animazione superflua (`prefers-reduced-motion` rispettato), tema chiaro predefinito per la luce solare con **tema alto contrasto** e **tema scuro** selezionabili, dimensione del testo regolabile, `lang="it"`, struttura semantica, focus visibile.
 
 ## 8. Fuori ambito (dichiarato)
 
 Navigazione turn-by-turn, tracciamento in background affidabile, registrazione del tracciato dell'utente, chat/condivisione tra dispositivi, account, fotografie, estensioni al Bivacco Segalla e percorsi alpinistici.
+
+## 9. Stato finale rispetto alla specifica (scostamenti dichiarati)
+
+| Specifica | Realizzato |
+|---|---|
+| Suggerimento automatico di cambio fase | **Non implementato** (la fase è sempre scelta dall'utente) |
+| Bussola/direzione di marcia | Direzione della traccia in punti cardinali; nessuna freccia dal GPS in movimento |
+| Punti critici: ponti, bivi, **tratti ripidi** | Ponti e bivi dal dato OSM; il tratto ripido del Leno è solo informazione testuale (non guidato) |
+| Tema chiaro predefinito | Tema "automatico": segue le preferenze del sistema; chiaro, scuro e alto contrasto selezionabili |
+| Fotografie autorizzate | **Nessuna fotografia** (nessuna immagine con licenza verificabile raggiungibile) |
+| Service worker con Workbox | Service worker scritto a mano (poche righe, verifica offline sotto controllo) |
+| Condivisione del GPX | Esportazione (download) e Web Share API dove disponibile; nessun invio automatico |
+| Installazione guidata | Pulsante *Installa l'app* dove il browser lo consente; istruzioni per iPhone/Safari (nessun pulsante programmabile su iOS) |
+| Meteo | Open-Meteo a runtime sul dispositivo, con data dell'ultimo aggiornamento; **non provato dal vivo** |

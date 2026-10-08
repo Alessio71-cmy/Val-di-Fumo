@@ -1,0 +1,31 @@
+name: Verifiche
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npx vitest run
+      - run: npm run build
+      - name: Browser per i test end-to-end
+        run: npx playwright install --with-deps chromium
+      - name: Test end-to-end (Chromium)
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: risultati-e2e
+          path: |
+            test-results/e2e.json
+            test-results/screens
+          if-no-files-found: ignore

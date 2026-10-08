@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { guidancePolicy } from '../../domain/validation';
-import { fmtAgo, fmtDistance, fmtDuration } from '../../geo/format';
+import { fmtAgo, fmtClock, fmtDistance, fmtDuration } from '../../geo/format';
 import { formatDegMin, formatLatLon, compassIT } from '../../geo/geodesy';
 import { routeWaypoints } from '../../geo/nav';
 import { ACCURACY_LABEL } from '../../gps/quality';
@@ -107,6 +107,14 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
   const remainingSub = nav?.next?.etaMin !== undefined ? `prossimo punto ≈${fmtDuration(nav.next.etaMin)}` : nav ? 'lungo la traccia' : 'lunghezza totale';
   const sched = a.schedule?.summary;
 
+  // informazione di sicurezza sempre in vista durante il trekking: ultimo orario prudenziale per iniziare il ritorno
+  const strip =
+    sched && (a.phase === 'trek-prep' || a.phase === 'trek-out' || a.phase === 'hut')
+      ? { cls: sched.status === 'ok' ? 'ok' : sched.status === 'tight' ? 'warn' : 'danger', text: `Ritorno entro ${fmtClock(sched.latestReturnStartMin)} · ${sched.status === 'ok' ? 'margine adeguato' : sched.status === 'tight' ? 'margine tirato' : 'margine insufficiente: accorcia'}` }
+      : sched && a.phase === 'trek-back'
+        ? { cls: 'ok', text: `All’auto entro ${fmtClock(sched.carDeadlineMin)} · tramonto ${fmtClock(sched.sunsetMin)}` }
+        : null;
+
   const chips: Array<{ id: string; label: string }> = [
     { id: prefs.bank.out ? 'route-out-bank' : 'route-out', label: 'Andata' },
     { id: prefs.bank.back ? 'route-back-bank' : 'route-back', label: 'Ritorno' },
@@ -143,8 +151,13 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
       <h1 className="sr-only">Mappa e posizione</h1>
       <div className="map-hud" aria-live="off" ref={hudRef}>
         <Stat label="Dove sono" value={whereTitle} sub={whereSub} id="hud-where" />
-        <Stat label="Dove devo andare" value={<span style={{ fontSize: '0.92em' }}>{nextName}</span>} sub={`tra ${nextDist}`} id="hud-next" />
+        <Stat label="Dove devo andare" value={<span style={{ fontSize: '0.92em' }}>{nextName}</span>} sub={`tra ${nextDist}${nav?.reliable ? ` · traccia verso ${compassIT(nav.routeBearingDeg)}` : ''}`} id="hud-next" />
         <Stat label="Quanto manca" value={remainingVal} sub={remainingSub} id="hud-left" />
+        {strip ? (
+          <div className={`strip ${strip.cls}`} data-testid="hud-strip">
+            <Icon name="clock" size={16} /> {strip.text}
+          </div>
+        ) : null}
       </div>
 
       <div className="map-bottom" ref={bottomRef}>

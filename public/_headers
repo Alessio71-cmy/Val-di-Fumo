@@ -1,0 +1,20 @@
+# Intestazioni consigliate per hosting statici che le leggono (Netlify, Cloudflare Pages). Altri host: vedi docs/DEPLOY.md.
+# Il service worker e i file che ne decidono l'aggiornamento non devono restare in cache HTTP: altrimenti una nuova versione
+# può non arrivare ai telefoni. I file con hash nel nome (assets/) sono immutabili.
+/sw.js
+  Cache-Control: no-cache
+/precache-manifest.json
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/data/*
+  Cache-Control: no-cache
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://api.open-meteo.com blob: data:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: geolocation=(self), camera=(), microphone=()

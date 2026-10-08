@@ -38,7 +38,7 @@ export function offlinePlugin(): Plugin {
     closeBundle() {
       const files = walk(outDir)
         .map((f) => ({ f, url: relative(outDir, f).split(sep).join('/') }))
-        .filter(({ url }) => url !== 'sw.js' && url !== 'precache-manifest.json' && !url.endsWith('.map') && !url.split('/').pop()!.startsWith('.'));
+        .filter(({ url }) => url !== 'sw.js' && url !== 'precache-manifest.json' && url !== '_headers' && url !== '_redirects' && !url.endsWith('.map') && !url.split('/').pop()!.startsWith('.'));
       const resources: Res[] = files
         .map(({ f, url }) => {
           const buf = readFileSync(f);

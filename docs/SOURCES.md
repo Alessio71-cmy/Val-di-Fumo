@@ -239,3 +239,35 @@ dalla policy di rete dell'ambiente di sviluppo e **non sono state consultate**.
 - **Licenza**: —
 - **Data di consultazione**: 2026-10-08  ·  **Modalita'**: solo sintesi dello strumento di ricerca (pagina non aperta)  ·  **Attendibilita'**: media
 - **Usata per**: Raccomandazione del Parco di tenere i cani al guinzaglio (testo normativo non reperito).
+
+### Italia.it — Val di Fumo (portale nazionale del turismo)
+- **ID**: `italia-val-di-fumo`  ·  **Editore**: ENIT — Italia.it
+- **URL**: <https://www.italia.it/it/trentino/cosa-fare/val-di-fumo>
+- **Licenza**: —
+- **Data di consultazione**: 2026-10-08  ·  **Modalita'**: solo sintesi dello strumento di ricerca (pagina non aperta)  ·  **Attendibilita'**: media
+- **Usata per**: Malga Breguzzo descritta come struttura non più in uso (nessun servizio); rifugio aperto da fine primavera a fine estate con bar, ristorante e ~50 posti (6 nel locale invernale); Malga Val di Fumo come sosta per prodotti tipici.
+- **Note**: Letta solo tramite sintesi di ricerca.
+
+### Komoot — schede utenti: cascata sul Chiese / Malga Breguzzo (Val di Fumo)
+- **ID**: `komoot-chiese`  ·  **Editore**: Komoot (contributi utenti)
+- **URL**: <https://www.komoot.com/highlight/4507126>
+- **Licenza**: —
+- **Data di consultazione**: 2026-10-08  ·  **Modalita'**: solo sintesi dello strumento di ricerca (pagina non aperta)  ·  **Attendibilita'**: bassa
+- **Usata per**: Cascata presso Malga Breguzzo all'inizio della Val di Fumo; una cascatella prima di un ponte in legno più vicino al rifugio (relazione di un utente, non localizzata).
+- **Note**: Contributo di utenti, non verificato. L'identificazione precisa della scheda è approssimativa.
+
+### Komoot — schede utenti: Lago di Malga Bissina (diga, pista, divieto per le biciclette oltre Breguzzo)
+- **ID**: `komoot-bissina`  ·  **Editore**: Komoot (contributi utenti)
+- **URL**: <https://www.komoot.com/highlight/1979748>
+- **Licenza**: —
+- **Data di consultazione**: 2026-10-08  ·  **Modalita'**: solo sintesi dello strumento di ricerca (pagina non aperta)  ·  **Attendibilita'**: bassa
+- **Usata per**: Pista larga sulla sponda del lago fino al rifugio; restrizione al transito delle biciclette oltre Malga Breguzzo (2025); sommità della diga visitabile solo in certi giorni.
+- **Note**: Contributi di utenti con date diverse e talvolta contraddittori; identificazione precisa della scheda approssimativa.
+
+### il Dolomiti — itinerario Val di Fumo (contenuto sponsorizzato)
+- **ID**: `ildolomiti-itinerario`  ·  **Editore**: il Dolomiti
+- **URL**: <https://www.ildolomiti.it/altra-montagna/itinerari/un-piccolo-gioiello-di-25-chilometri-che-si-estende-tra-boschi-pascoli-e-alte-montagne-nelle-atmosfere-della-val-di-fumo-ai-piedi-delladamello>
+- **Licenza**: —
+- **Data di consultazione**: 2026-10-08  ·  **Modalita'**: solo sintesi dello strumento di ricerca (pagina non aperta)  ·  **Attendibilita'**: bassa
+- **Usata per**: Dopo il ponte il sentiero SAT 222 sale al colle del rifugio; classificazione EE per l'itinerario completo (non adottata).
+- **Note**: Contenuto sponsorizzato; la classificazione EE si riferisce all'itinerario completo, non al solo tratto fino al rifugio.

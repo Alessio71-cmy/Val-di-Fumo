@@ -153,7 +153,7 @@ export async function readStoredPrefs(page: Page): Promise<Record<string, unknow
 }
 
 /** Piccolo server statico su una cartella (isolato dagli altri test): serve a provare l'aggiornamento del service worker modificando una copia di dist/. */
-export async function serveDir(dir: string): Promise<{ url: string; close: () => Promise<void> }> {
+export async function serveDir(dir: string, extraHeaders: Record<string, string> = {}): Promise<{ url: string; close: () => Promise<void> }> {
   const http = await import('node:http');
   const MIME: Record<string, string> = {
     '.html': 'text/html; charset=utf-8',
@@ -177,7 +177,7 @@ export async function serveDir(dir: string): Promise<{ url: string; close: () =>
       res.end('not found');
       return;
     }
-    res.writeHead(200, { 'content-type': MIME[path.extname(file)] ?? 'application/octet-stream', 'cache-control': 'no-cache' });
+    res.writeHead(200, { 'content-type': MIME[path.extname(file)] ?? 'application/octet-stream', 'cache-control': 'no-cache', ...extraHeaders });
     fs.createReadStream(file).pipe(res);
   });
   await new Promise<void>((ok) => server.listen(0, '127.0.0.1', ok));
@@ -210,4 +210,12 @@ export async function controllerBuildId(page: Page): Promise<string | null> {
       }),
     )
     .catch(() => null); // la pagina può ricaricarsi proprio mentre si interroga (cambio di controllore)
+}
+
+/** Apre una sezione richiudibile di "Sicurezza e offline" (per id: sec-gps, sec-offline, sec-track, sec-emerg, sec-check, sec-limits, sec-sources, sec-look). */
+export async function openFold(page: Page, id: string) {
+  const d = page.locator(`details#${id}`);
+  await expect(d).toBeAttached();
+  if (!(await d.evaluate((el: HTMLDetailsElement) => el.open))) await d.locator('> summary').click();
+  await expect(d).toHaveJSProperty('open', true);
 }

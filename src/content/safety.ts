@@ -113,7 +113,7 @@ export const EMERGENCY_STEPS: EmergencyStep[] = [
   },
   {
     title: '3. Cosa dire',
-    body: 'Provincia di Trento, comune di Valdaone (Daone), Val di Fumo, sentiero dalla diga di Malga Bissina al Rifugio Val di Fumo. Le coordinate dalla scheda "Dove sono" (lat/lon in gradi decimali e in gradi/minuti), numero e condizioni delle persone, cosa è successo. Resta in linea e rispondi alle domande.',
+    body: 'Provincia di Trento, comune di Valdaone (Daone), Val di Fumo, sentiero dalla diga di Malga Bissina al Rifugio Val di Fumo. Le coordinate (Sicurezza e offline → Stato GPS e posizione: gradi decimali e gradi/minuti; il pulsante Condividi prepara il messaggio), numero e condizioni delle persone, cosa è successo. Resta in linea e rispondi alle domande.',
   },
   {
     title: '4. Se non c’è copertura: segnale di soccorso alpino',
@@ -171,7 +171,7 @@ export const CHECKLIST: ChecklistItem[] = [
   { id: 'powerbank', group: 'sicurezza', label: 'Power bank e cavo' },
   { id: 'paper', group: 'sicurezza', label: 'Mappa cartacea o stampa della traccia (riserva)' },
   { id: 'coins', group: 'auto', label: 'Monete per il parcheggio' },
-  { id: 'fuel', group: 'auto', label: 'Carburante sufficiente (≈175 km a/r)' },
+  { id: 'fuel', group: 'auto', label: 'Carburante sufficiente (≈180 km in totale, strade di montagna)' },
   { id: 'documents', group: 'auto', label: 'Documenti e tessera sanitaria' },
 ];
 

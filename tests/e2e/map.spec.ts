@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { offset, openApp, parseDistance, pointAtChain, routeLength, tab } from './helpers';
+import { offset, openApp, openFold, parseDistance, pointAtChain, routeLength, tab } from './helpers';
 
 /** Test AUTOMATICI su Chromium (WebGL via SwiftShader): interazione con mappa, punti, varianti, confronto GPX. */
 
@@ -105,7 +105,7 @@ function gpx(points: Array<{ lat: number; lon: number }>, name: string) {
 test('confronto con un GPX importato: uguale → coerente; spostato di 200 m → diverso; file non valido → errore chiaro', async ({ page }) => {
   await openApp(page);
   await tab(page, 'sicurezza');
-  await page.getByText('Traccia GPX: stato, esporta, confronta').click();
+  await openFold(page, 'sec-track');
   const input = page.getByTestId('gpx-input');
 
   // 1. la nostra stessa traccia
@@ -140,7 +140,7 @@ test('confronto con un GPX importato: uguale → coerente; spostato di 200 m →
 test('esportazione GPX: file valido, stesso numero di punti della traccia ufficiale incorporata, quote presenti', async ({ page }) => {
   await openApp(page);
   await tab(page, 'sicurezza');
-  await page.getByText('Traccia GPX: stato, esporta, confronta').click();
+  await openFold(page, 'sec-track');
   for (const [label, file, ref] of [
     ['Andata (diga → rifugio)', 'andata-diga-rifugio.gpx', 'andata-diga-rifugio.gpx'],
     ['Ritorno (rifugio → diga)', 'ritorno-rifugio-diga.gpx', 'ritorno-rifugio-diga.gpx'],
