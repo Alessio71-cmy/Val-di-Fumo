@@ -87,7 +87,7 @@ Navigazione turn-by-turn, tracciamento in background affidabile, registrazione d
 | Specifica | Realizzato |
 |---|---|
 | Suggerimento automatico di cambio fase | **Non implementato** (la fase è sempre scelta dall'utente) |
-| Bussola/direzione di marcia | Direzione della traccia in punti cardinali; nessuna freccia dal GPS in movimento |
+| Bussola/direzione di marcia | Direzione della traccia in punti cardinali; nessuna freccia ricavata dal GPS in movimento. **Aggiunta a richiesta:** pulsante *Bussola* (sensori del telefono, mai il GPS) che mostra dove sei rivolto: indicativa, provata solo con eventi simulati |
 | Punti critici: ponti, bivi, **tratti ripidi** | Ponti e bivi dal dato OSM; il tratto ripido del Leno è solo informazione testuale (non guidato) |
 | Tema chiaro predefinito | Tema "automatico": segue le preferenze del sistema; chiaro, scuro e alto contrasto selezionabili |
 | Fotografie autorizzate | **Nessuna fotografia** (nessuna immagine con licenza verificabile raggiungibile) |

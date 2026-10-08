@@ -4,7 +4,7 @@
 
 > ## Lettura in 30 secondi
 >
-> - **Test automatici: 177 unitari + 67 end-to-end, tutti superati** (dipendenze installate con `npm ci` dal lockfile; suite E2E eseguita in locale 3 volte di fila sull'ultima versione: 67/67 ogni volta, nessun test instabile; e **una volta sulla CI di GitHub**, runner Ubuntu: 67/67).
+> - **Test automatici: 183 unitari + 73 end-to-end, tutti superati** (dipendenze installate con `npm ci` dal lockfile; suite E2E eseguita in locale sull'ultima versione: 73/73 (una esecuzione; sulle versioni precedenti 3 esecuzioni di fila 67/67, nessun test instabile). **La CI di GitHub** ha già dato 67/67 sulla versione precedente: l'esito su quella attuale va letto in Actions).
 > - **La CI di GitHub ha trovato un difetto che nel mio ambiente non si vedeva**: layout fragile con font di sistema larghi (un solo test falliva, sempre lo stesso, in cinque esecuzioni consecutive). Corretto e riprovato (§6): prima di allora "tutti superati" valeva solo per il mio ambiente.
 > - **L'app è pubblicata su Vercel (https://val-di-fumo.vercel.app) ma non l'ho potuta aprire da qui** (rete bloccata): i controlli «dopo la pubblicazione» di [DEPLOY.md](DEPLOY.md) vanno fatti da un telefono.
 > - **Nessun test su dispositivo fisico è stato eseguito.** Non c'erano iPhone, secondo telefono, modalità aereo reale né GPS reale. Quindi i test obbligatori n. **2** (installazione su iPhone) e n. **3** (secondo dispositivo) sono **NON ESEGUITI**, e i n. **5, 6, 9** sono solo **SIMULATI** su Chromium.
@@ -27,7 +27,7 @@
 ```bash
 npm ci
 npx playwright install chromium   # se manca
-npm run test:all                  # typecheck + 177 test unitari + build + 67 test E2E (≈ 3 minuti)
+npm run test:all                  # typecheck + 183 test unitari + build + 73 test E2E (≈ 3 minuti)
 ```
 
 I risultati strutturati vengono scritti in `test-results/` (non versionata); le schermate a più dimensioni in `test-results/screens/`.
@@ -37,7 +37,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - Linux in container, Node 22.22, Vite 5.4 (build di **produzione**, servita da `vite preview` su `127.0.0.1:4173`, secure context).
 - **Chromium 141** (build di Playwright 1.56.1), headless, profilo "Pixel 7" (412×915, touch); WebGL tramite SwiftShader (software).
 - Rete esterna **limitata dall'ambiente**: Open-Meteo, SAT, PNAB, Visit Trentino, Iter Edizioni, Wikimedia, OpenStreetMap/Overpass non raggiungibili. Per questo il meteo e le fonti ufficiali non sono stati provati.
-- **Seconda configurazione: GitHub Actions** (`ubuntu-latest`, Node 20, Chromium installato da `npx playwright install --with-deps chromium`, `retries: 0`), workflow `ci.yml`: typecheck, test unitari, build e 67 E2E, a ogni push. Ha già trovato un difetto che il mio ambiente non mostrava (§6): le prime **cinque** esecuzioni (commit precedenti) sono fallite per lo stesso test; dopo la correzione l'esecuzione n. 6 (commit `c2191b4`) è **verde: 67/67 in 3,3 minuti**. Stessa limitazione: solo Chromium, nessun dispositivo reale.
+- **Seconda configurazione: GitHub Actions** (`ubuntu-latest`, Node 20, Chromium installato da `npx playwright install --with-deps chromium`, `retries: 0`), workflow `ci.yml`: typecheck, test unitari, build e suite E2E, a ogni push. Ha già trovato un difetto che il mio ambiente non mostrava (§6): le prime **cinque** esecuzioni (commit precedenti) sono fallite per lo stesso test; dopo la correzione l'esecuzione n. 6 (commit `c2191b4`) è **verde: 67/67 in 3,3 minuti**. Stessa limitazione: solo Chromium, nessun dispositivo reale.
 
 ## 4. I 20 test obbligatori del brief
 
@@ -83,6 +83,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - **Aggiornamento del service worker** (`pwa.spec.ts`): una nuova build **attende la conferma** dell'utente, anche dopo una ricarica; solo dopo "Applica" diventa attiva e le vecchie cache vengono rimosse; lo stato "pronto" non si eredita.
 - **Nessuna lettura della posizione prima del consenso**: la geolocalizzazione non viene mai interrogata navigando fra le schede; niente salvato prima del tocco; dopo il consenso l'ultima posizione si salva **solo** in IndexedDB e si cancella con un pulsante (`gps.spec.ts`).
 - **Installazione**: stato "installata/nel browser", pulsante *Installa* solo su richiesta, testi per iPhone con Safari e con altri browser (`pwa.spec.ts`, UA emulato).
+- **Bussola** (`compass.spec.ts`, `heading.test.ts`): **SIMULATA**, con eventi di orientamento sintetici (Android: angoli assoluti; iPhone: `webkitCompassHeading` e permesso finto). Provano: spenta di default, permesso chiesto solo al tocco, negato/assente → messaggio e nessuna direzione inventata, freccia che ruota (mappa dettagliata e schematica). **Non provano** i sensori di un telefono vero né la precisione del magnetometro.
 - **CSP**: `public/_headers` applicata da un server di prova; nessuna violazione; controprova negativa che le rileva (`csp.spec.ts`).
 
 ## 6. Difetti trovati durante le prove e corretti
@@ -121,7 +122,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 ## 8. Elenco dei test automatici
 
 <!-- BEGIN:test-list -->
-### Test unitari (Vitest): 177 superati su 177
+### Test unitari (Vitest): 183 superati su 183
 
 | File | Test superati | Cosa verifica |
 |---|---|---|
@@ -129,6 +130,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | `format.test.ts` | 6 | formati di distanza, durata, orario, età |
 | `geodesy.test.ts` | 8 | distanze, direzioni, formato coordinate |
 | `gps.test.ts` | 13 | consenso, stati, errori, qualità del fix (geolocalizzazione finta) |
+| `heading.test.ts` | 6 | bussola del telefono: direzione dagli angoli del sensore (in piano, in piedi), iOS, media sugli angoli |
 | `install.test.ts` | 4 | rilevamento piattaforma per le istruzioni di installazione |
 | `nav.test.ts` | 11 | progressione e distanza residua lungo la traccia, prossimo punto |
 | `offline.test.ts` | 17 | manifest, download, verifica SHA-256, stati "pronto", aggiornamenti (cache finta) |
@@ -143,7 +145,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | `vercel-config.test.ts` | 4 | vercel.json allineato a public/_headers: cache del service worker, CSP, build statica |
 | `weather.test.ts` | 9 | meteo: URL, risposta SIMULATA, riepilogo, errori, cache |
 
-### Test end-to-end (Playwright, Chromium): 67 superati su 67
+### Test end-to-end (Playwright, Chromium): 73 superati su 73
 
 **`a11y.spec.ts`**
 
@@ -155,6 +157,15 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - ✅ struttura: un solo main, nav con nome, intestazioni coerenti, lingua italiana, nessun ID duplicato
 - ✅ movimento ridotto: nessuna transizione se il sistema lo chiede; informazioni mai affidate al solo colore
 - ✅ dimensione del testo "molto grande" (130 %) con font diversi: nessun overflow orizzontale su 320 px e barre di navigazione non tagliate
+
+**`compass.spec.ts`**
+
+- ✅ selettori in ordine Leno → Andata → Ritorno; la variante sull’altra sponda non compare finché non serve
+- ✅ bussola spenta di default; accesa a richiesta la freccia ruota verso dove punta il telefono (Android: angoli assoluti)
+- ✅ iPhone (simulato): permesso chiesto solo al tocco; con "consenti" legge la direzione di iOS
+- ✅ iPhone (simulato): permesso negato → messaggio chiaro, nessuna freccia, la posizione resta
+- ✅ nessun dato dal sensore (es. computer o browser senza bussola): messaggio dopo pochi secondi, nessuna direzione inventata
+- ✅ mappa schematica (senza WebGL): la freccia di direzione compare e ruota
 
 **`content.spec.ts`**
 

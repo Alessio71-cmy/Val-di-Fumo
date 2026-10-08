@@ -2,6 +2,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import type { MapPack } from '../../data/loader';
 import type { GPSPosition, LngLat, Trip } from '../../domain/types';
 import { fmtDistance } from '../../geo/format';
+import { compassIT } from '../../geo/geodesy';
 import { routeWaypoints } from '../../geo/nav';
 import type { MapHandle } from './MapView';
 
@@ -41,12 +42,14 @@ export interface StaticMapProps {
   routeId: string;
   otherRouteId: string | null;
   position: GPSPosition | null;
+  /** Direzione verso cui è rivolto il telefono (bussola), in gradi dal nord; null se spenta o non disponibile. */
+  heading?: number | null;
   imported: LngLat[] | null;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
 }
 
-export const StaticMap = forwardRef<MapHandle, StaticMapProps>(function StaticMap({ trip, pack, routeId, otherRouteId, position, imported, selectedId, onSelect }, ref) {
+export const StaticMap = forwardRef<MapHandle, StaticMapProps>(function StaticMap({ trip, pack, routeId, otherRouteId, position, heading, imported, selectedId, onSelect }, ref) {
   const route = trip.routes[routeId];
   const other = otherRouteId ? trip.routes[otherRouteId] : undefined;
   const wps = useMemo(() => routeWaypoints(trip, routeId), [trip, routeId]);
@@ -212,8 +215,20 @@ export const StaticMap = forwardRef<MapHandle, StaticMapProps>(function StaticMa
           const [x, y] = P([position.lng, position.lat]);
           const accU = (position.accuracyM / 111_320) * 1; // gradi di lat ≈ unità
           return (
-            <g aria-label="La tua posizione" role="img">
+            <g aria-label={heading != null ? `La tua posizione, rivolto verso ${compassIT(heading)} (bussola del telefono, indicativa)` : 'La tua posizione'} role="img" data-heading={heading ?? undefined}>
               <circle cx={x} cy={y} r={Math.max(accU, r * 0.6)} fill="#0b5fff" fillOpacity={0.15} stroke="#0b5fff" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+              {heading != null ? (
+                <polygon
+                  data-testid="heading-cone"
+                  points={`${x},${y - r * 5} ${x - r * 1.9},${y - r * 1.1} ${x + r * 1.9},${y - r * 1.1}`}
+                  transform={`rotate(${heading} ${x} ${y})`}
+                  fill="#0b5fff"
+                  fillOpacity={0.55}
+                  stroke="#fff"
+                  strokeWidth={1.5}
+                  vectorEffect="non-scaling-stroke"
+                />
+              ) : null}
               <circle cx={x} cy={y} r={r * 0.9} fill="#0b5fff" stroke="#fff" strokeWidth={3} vectorEffect="non-scaling-stroke" />
             </g>
           );

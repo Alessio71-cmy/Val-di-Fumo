@@ -10,6 +10,7 @@ import { copyText, Sheet, Stat, ValidationBadge } from '../components/ui';
 import type { MapHandle } from '../map/MapView';
 import { StaticMap } from '../map/StaticMap';
 import { webglSupported } from '../map/mapStyle';
+import { useCompass } from '../hooks/useCompass';
 import type { GotoFn } from '../tabs';
 
 const MapView = lazy(() => import('../map/MapView').then((m) => ({ default: m.MapView })));
@@ -29,6 +30,7 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
   const [forceSvg, setForceSvg] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
   const [details, setDetails] = useState(false);
+  const compass = useCompass();
   const gl = useMemo(() => webglSupported(), []);
   const hudRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -117,11 +119,12 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
         : null;
 
   const chips: Array<{ id: string; label: string }> = [
+    { id: 'walk-leno', label: 'Leno' },
     { id: prefs.bank.out ? 'route-out-bank' : 'route-out', label: 'Andata' },
     { id: prefs.bank.back ? 'route-back-bank' : 'route-back', label: 'Ritorno' },
-    { id: 'walk-leno', label: 'Leno' },
   ];
-  if (trip.routes['route-out-bank']) chips.splice(2, 0, { id: activeRouteId.includes('back') ? 'route-back-bank' : 'route-out-bank', label: 'Sponda opposta' });
+  // la variante sull'altra sponda compare solo quando è quella mostrata (si apre da Percorso → "Vedi la variante sulla mappa")
+  if (activeRouteId.endsWith('-bank') && !chips.some((c) => c.id === activeRouteId)) chips.push({ id: activeRouteId, label: 'Sponda opposta' });
 
   return (
     <div className="mapwrap" data-testid="map-screen" data-mode={useGl ? 'gl' : 'svg'}>
@@ -134,6 +137,7 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
             routeId={activeRouteId}
             otherRouteId={bankOther}
             position={q?.usable ? pos : null}
+            heading={compass.state === 'on' ? compass.heading : null}
             imported={imported}
             selectedId={selected}
             onSelect={setSelected}
@@ -146,7 +150,7 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
           Carico la mappa…
         </p>
       ) : (
-        <StaticMap ref={ref} trip={trip} pack={pack} routeId={activeRouteId} otherRouteId={bankOther} position={q?.usable ? pos : null} imported={imported} selectedId={selected} onSelect={setSelected} />
+        <StaticMap ref={ref} trip={trip} pack={pack} routeId={activeRouteId} otherRouteId={bankOther} position={q?.usable ? pos : null} heading={compass.state === 'on' ? compass.heading : null} imported={imported} selectedId={selected} onSelect={setSelected} />
       )}
 
       <h1 className="sr-only">Mappa e posizione</h1>
@@ -169,6 +173,13 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
                 {c.label}
               </button>
             ))}
+            <button
+              onClick={() => (compass.state === 'off' || compass.state === 'denied' || compass.state === 'unsupported' ? void compass.enable() : compass.disable())}
+              aria-pressed={compass.state === 'on' || compass.state === 'asking'}
+              data-testid="compass-toggle"
+            >
+              <Icon name="compass" size={16} /> Bussola
+            </button>
             <button onClick={() => setDetails((d) => !d)} aria-pressed={details} data-testid="hud-details">
               Dettagli
             </button>
@@ -239,6 +250,16 @@ export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string })
               <button className="btn small ghost" onClick={() => goto('oggi')}>
                 Prepara il viaggio
               </button>
+            </div>
+          ) : null}
+          {compass.state === 'denied' ? (
+            <div className="card alert-warning" role="status" style={{ margin: 0 }} data-testid="compass-denied">
+              Bussola non consentita. Su iPhone: chiudi e riapri l’app, premi di nuovo “Bussola” e scegli “Consenti” (oppure Impostazioni → Safari → Movimento e orientamento).
+            </div>
+          ) : null}
+          {compass.state === 'unsupported' ? (
+            <div className="card alert-warning" role="status" style={{ margin: 0 }} data-testid="compass-unsupported">
+              Nessun dato dalla bussola: il telefono o il browser non la mette a disposizione. La posizione sulla mappa resta valida; la direzione si deduce dalla traccia.
             </div>
           ) : null}
           {forceSvg ? (

@@ -4,6 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import type { MapPack } from '../../data/loader';
 import type { CriticalPoint, GPSPosition, LngLat, Route, Trip } from '../../domain/types';
 import { fmtDistance } from '../../geo/format';
+import { compassIT } from '../../geo/geodesy';
 import { routeWaypoints } from '../../geo/nav';
 import { buildStyle, circlePolygon, EMPTY_FC } from './mapStyle';
 
@@ -19,6 +20,8 @@ export interface MapViewProps {
   /** Percorso alternativo (variante) mostrato tratteggiato. */
   otherRouteId: string | null;
   position: GPSPosition | null;
+  /** Direzione verso cui è rivolto il telefono (bussola), in gradi dal nord; null se spenta o non disponibile. */
+  heading?: number | null;
   imported: LngLat[] | null;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
@@ -44,7 +47,7 @@ function btn(cls: string, label: string, text: string, pressed = false): HTMLBut
 }
 
 export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(props, ref) {
-  const { trip, pack, routeId, otherRouteId, position, imported, selectedId, onSelect, onFail, insets } = props;
+  const { trip, pack, routeId, otherRouteId, position, heading, imported, selectedId, onSelect, onFail, insets } = props;
   const insetsRef = useRef(insets ?? { top: 110, bottom: 150 });
   insetsRef.current = insets ?? insetsRef.current;
   const el = useRef<HTMLDivElement>(null);
@@ -61,6 +64,8 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
   const onFailRef = useRef(onFail);
   onFailRef.current = onFail;
   posRef.current = position;
+  const headingRef = useRef<number | null>(null);
+  headingRef.current = heading ?? null;
   selectedRef.current = selectedId;
   routeRef.current = trip.routes[routeId];
 
@@ -259,10 +264,31 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
       d.className = 'user-dot';
       d.setAttribute('role', 'img');
       d.setAttribute('aria-label', 'La tua posizione');
+      const cone = document.createElement('div');
+      cone.className = 'user-heading';
+      cone.setAttribute('aria-hidden', 'true');
+      d.appendChild(cone);
       userMarker.current = new maplibregl.Marker({ element: d }).setLngLat([p.lng, p.lat]).addTo(m);
     } else {
       userMarker.current.setLngLat([p.lng, p.lat]);
     }
+    syncHeading();
+  }
+
+  function syncHeading() {
+    const d = userMarker.current?.getElement();
+    if (!d) return;
+    const h = headingRef.current;
+    if (h === null) {
+      d.classList.remove('has-heading');
+      d.removeAttribute('data-heading');
+      d.setAttribute('aria-label', 'La tua posizione');
+      return;
+    }
+    d.classList.add('has-heading');
+    d.dataset.heading = String(h);
+    d.style.setProperty('--hd', `${h}deg`);
+    d.setAttribute('aria-label', `La tua posizione, rivolto verso ${compassIT(h)} (bussola del telefono, indicativa)`);
   }
 
   useEffect(syncRoutes, [routeId, otherRouteId, imported, trip]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -271,6 +297,7 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
     fitRoute();
   }, [routeId, trip]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(syncUser, [position]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(syncHeading, [heading]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     wpMarkers.current.forEach((x, id) => x.el.setAttribute('aria-pressed', String(id === selectedId)));
     declutter();

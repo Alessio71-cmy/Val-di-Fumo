@@ -30,6 +30,7 @@ const WHAT = {
   'schedule-input.test.ts': 'priorità dei tempi (utente → dati → valori generici)',
   'schedule.test.ts': 'motore del programma: ritardi, ora limite, suggerimenti',
   'storage.test.ts': 'archivio locale con ripiego in memoria',
+  'heading.test.ts': 'bussola del telefono: direzione dagli angoli del sensore (in piano, in piedi), iOS, media sugli angoli',
   'sun.test.ts': 'alba/tramonto/crepuscolo contro riferimenti indipendenti (astral), orizzonte',
   'vercel-config.test.ts': 'vercel.json allineato a public/_headers: cache del service worker, CSP, build statica',
   'weather.test.ts': 'meteo: URL, risposta SIMULATA, riepilogo, errori, cache',
