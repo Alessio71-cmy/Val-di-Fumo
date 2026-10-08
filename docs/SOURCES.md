@@ -75,6 +75,14 @@ dalla policy di rete dell'ambiente di sviluppo e **non sono state consultate**.
 - **Data di consultazione**: 2026-10-08  ·  **Modalita'**: NON consultabile (host bloccato dall'ambiente di sviluppo)  ·  **Attendibilita'**: alta
 - **Usata per**: NON CONSULTATA: host bloccato.
 
+### Meteo Trentino — bollettino ufficiale
+- **ID**: `meteotrentino`  ·  **Editore**: Provincia autonoma di Trento — Meteotrentino
+- **URL**: <https://www.meteotrentino.it/>
+- **Licenza**: —
+- **Data di consultazione**: 2026-10-08  ·  **Modalita'**: NON consultabile (host bloccato dall'ambiente di sviluppo)  ·  **Attendibilita'**: alta
+- **Usata per**: Fonte ufficiale da consultare prima di partire (zero termico, neve fresca, vento, temporali); l'app mostra solo un modello Open-Meteo, non ufficiale.
+- **Note**: NON consultata in fase di sviluppo (rete limitata): indicata come riferimento per l'utente, non usata per alcun dato dell'app.
+
 ## Altre fonti richieste dal brief
 
 ### Iter Edizioni — Lago di Bissina, Rifugio Val di Fumo, Bivacco Segalla

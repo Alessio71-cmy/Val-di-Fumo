@@ -199,6 +199,12 @@ export function TodayScreen({ goto, showSchedule, setShowSchedule }: { goto: Got
           </p>
         )}
         {weather.error && weather.snapshot ? <p className="small muted">Ultimo tentativo di aggiornamento fallito: {weather.error}</p> : null}
+        <p className="small muted" style={{ marginBottom: 0 }}>
+          Bollettino ufficiale (serve rete):{' '}
+          <a href="https://www.meteotrentino.it/" target="_blank" rel="noopener noreferrer">
+            Meteo Trentino
+          </a>
+        </p>
       </section>
 
       <section className={`card ${offline?.state === 'ready' ? 'alert-ok' : 'alert-warning'}`} aria-labelledby="off-h" data-testid="offline-card">

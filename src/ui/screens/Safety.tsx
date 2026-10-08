@@ -60,6 +60,8 @@ export function SafetyScreen({ focus }: { focus?: GotoOpts['section'] }) {
   const [gpxErr, setGpxErr] = useState<string | null>(null);
   const route = trip?.routes['route-out'];
 
+  // indirizzo dell'app senza frammento (#/sezione) né parametri
+  const appUrl = typeof location === 'undefined' ? '' : `${location.origin}${location.pathname}`;
   const coordText = pos ? `${formatLatLon(pos.lat, pos.lng)} (±${Math.round(pos.accuracyM)} m)` : null;
   const emergencyText = () => {
     const p = pos ?? (last ? { lat: last.lat, lng: last.lng, accuracyM: last.accuracyM, timestamp: last.timestamp } : null);
@@ -72,16 +74,16 @@ export function SafetyScreen({ focus }: { focus?: GotoOpts['section'] }) {
     ].join('\n');
   };
 
-  const share = async (title: string, text: string) => {
+  const share = async (title: string, text: string, url?: string) => {
     try {
       if (navigator.share) {
-        await navigator.share({ title, text });
+        await navigator.share(url ? { title, url } : { title, text });
         return;
       }
     } catch {
       return; // annullato dall'utente
     }
-    a.showToast((await copyText(text)) ? 'Testo copiato' : 'Condivisione non disponibile');
+    a.showToast((await copyText(url ?? text)) ? (url ? 'Link copiato' : 'Testo copiato') : 'Condivisione non disponibile');
   };
 
   const downloadGpx = (routeId: string, file: string) => {
@@ -263,6 +265,15 @@ export function SafetyScreen({ focus }: { focus?: GotoOpts['section'] }) {
         ) : null}
         <p className="small"><strong>iPhone:</strong> usa <strong>Safari</strong> (con altri browser “Aggiungi alla schermata Home” dipende dalla versione di iOS). Apri l’indirizzo https → tasto Condividi → “Aggiungi alla schermata Home”, poi <strong>apri l’app dall’icona e premi “Prepara il viaggio” da lì</strong>: l’app installata ha una memoria separata da quella di Safari. Sui siti non installati Safari può cancellare i dati dopo alcuni giorni senza uso.</p>
         <p className="small"><strong>Android (Chrome):</strong> menu ⋮ → “Installa app” (o “Aggiungi a schermata Home”). Poi “Prepara il viaggio”.</p>
+        <div className="row wrap" style={{ marginBottom: 8 }}>
+          <button className="btn secondary small" onClick={() => void share('Val di Fumo — Trail Companion', '', appUrl)} data-testid="share-link">
+            <Icon name="share" size={18} /> Condividi il link dell’app
+          </button>
+          <button className="btn ghost small" onClick={async () => a.showToast((await copyText(appUrl)) ? 'Link copiato' : 'Copia non riuscita')} data-testid="copy-link">
+            <Icon name="copy" size={18} /> Copia il link
+          </button>
+        </div>
+        <p className="small muted">Il link serve a installare l’app: <strong>non prova</strong> che sia installata o pronta offline sul telefono di chi lo riceve.</p>
         {a.install.platform === 'ios' && !a.install.iosSafari && !a.install.standalone ? (
           <div className="card alert-warning small">Non stai usando Safari: se non trovi “Aggiungi alla schermata Home” nel menu Condividi, apri questo indirizzo in Safari.</div>
         ) : null}

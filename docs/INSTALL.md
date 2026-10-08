@@ -4,6 +4,8 @@ Guida per chi parteciperà all'escursione. **Non serve nessun account, nessuna c
 
 > **Ogni persona deve installare e preparare l'app sul proprio telefono.** Aver ricevuto il link non significa che l'app sia installata né pronta per l'uso offline: lo stato "Pronto per l'uso offline" compare solo dopo un download e una verifica fatti su *quel* dispositivo.
 
+> Hai già l'app aperta e vuoi invitare un amico? *Sicurezza e offline → Mappe e uso offline → Condividi il link dell'app*.
+
 ## Cosa serve
 
 - L'**indirizzo https** dell'app (te lo manda chi la pubblica; vedi [DEPLOY.md](DEPLOY.md)).

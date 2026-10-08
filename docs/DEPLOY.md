@@ -62,7 +62,7 @@ Servire `dist/` con HTTPS valido. Regole minime: `Cache-Control: no-cache` per `
 
 ## Condividere il link
 
-- Mandare l'indirizzo https **e** il link a [INSTALL.md](INSTALL.md) (o il suo testo). Un **codice QR** dell'indirizzo è comodo per chi è insieme.
+- Mandare l'indirizzo https **e** il link a [INSTALL.md](INSTALL.md) (o il suo testo). Dall'app, *Sicurezza e offline → Mappe e uso offline* ha i pulsanti **Condividi il link dell'app** e **Copia il link**. Un **codice QR** dell'indirizzo è comodo per chi è insieme (non è generato dall'app).
 - Ricordare a ognuno di **preparare e testare il proprio telefono**: il link non prova nulla.
 - Congelare le pubblicazioni **il giorno prima** dell'escursione: ogni nuova versione obbliga a ripetere *Prepara il viaggio* e a rifare il test su ogni telefono.
 

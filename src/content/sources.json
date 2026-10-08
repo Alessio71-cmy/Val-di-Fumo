@@ -427,5 +427,18 @@
     "reliability": "bassa",
     "usedFor": "Dopo il ponte il sentiero SAT 222 sale al colle del rifugio; classificazione EE per l'itinerario completo (non adottata).",
     "notes": "Contenuto sponsorizzato; la classificazione EE si riferisce all'itinerario completo, non al solo tratto fino al rifugio."
+  },
+  {
+    "id": "meteotrentino",
+    "title": "Meteo Trentino — bollettino ufficiale",
+    "publisher": "Provincia autonoma di Trento — Meteotrentino",
+    "url": "https://www.meteotrentino.it/",
+    "license": "—",
+    "accessedAt": "2026-10-08",
+    "kind": "official",
+    "accessMode": "blocked",
+    "reliability": "alta",
+    "usedFor": "Fonte ufficiale da consultare prima di partire (zero termico, neve fresca, vento, temporali); l'app mostra solo un modello Open-Meteo, non ufficiale.",
+    "notes": "NON consultata in fase di sviluppo (rete limitata): indicata come riferimento per l'utente, non usata per alcun dato dell'app."
   }
 ]

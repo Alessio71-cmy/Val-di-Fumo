@@ -4,7 +4,7 @@
 
 > ## Lettura in 30 secondi
 >
-> - **Test automatici: 173 unitari + 66 end-to-end, tutti superati** (da installazione pulita; suite E2E eseguita 3 volte di fila sull'ultima versione: 66/66 ogni volta, nessun test instabile).
+> - **Test automatici: 173 unitari + 67 end-to-end, tutti superati** (dipendenze installate con `npm ci` dal lockfile; suite E2E eseguita 3 volte di fila sull'ultima versione: 67/67 ogni volta, nessun test instabile).
 > - **Nessun test su dispositivo fisico è stato eseguito.** Non c'erano iPhone, secondo telefono, modalità aereo reale né GPS reale. Quindi i test obbligatori n. **2** (installazione su iPhone) e n. **3** (secondo dispositivo) sono **NON ESEGUITI**, e i n. **5, 6, 9** sono solo **SIMULATI** su Chromium.
 > - Il browser provato è **solo Chromium** (Playwright). **Safari/WebKit (iPhone) e Firefox non sono stati provati.**
 > - Il meteo (Open-Meteo) **non è stato provato dal vivo** (host bloccato dall'ambiente); la risposta è simulata.
@@ -25,7 +25,7 @@
 ```bash
 npm ci
 npx playwright install chromium   # se manca
-npm run test:all                  # typecheck + 173 test unitari + build + 66 test E2E (≈ 3 minuti)
+npm run test:all                  # typecheck + 173 test unitari + build + 67 test E2E (≈ 3 minuti)
 ```
 
 I risultati strutturati vengono scritti in `test-results/` (non versionata); le schermate a più dimensioni in `test-results/screens/`.
@@ -138,7 +138,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 | `sun.test.ts` | 25 | alba/tramonto/crepuscolo contro riferimenti indipendenti (astral), orizzonte |
 | `weather.test.ts` | 9 | meteo: URL, risposta SIMULATA, riepilogo, errori, cache |
 
-### Test end-to-end (Playwright, Chromium): 66 superati su 66
+### Test end-to-end (Playwright, Chromium): 67 superati su 67
 
 **`a11y.spec.ts`**
 
@@ -229,6 +229,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 - ✅ controprova: cache della mappa svuotata dal sistema → stato "incompleto" e mappa schematica, non "pronto"
 - ✅ aggiornamento del service worker: la nuova versione attende la conferma dell’utente e poi pulisce le vecchie cache
 - ✅ installazione: stato, pulsante "Installa l’app" (evento beforeinstallprompt SIMULATO) e istruzioni per iPhone/Safari
+- ✅ condivisione del link dell’app: indirizzo pulito (senza #sezione), avviso che non prova l’installazione altrui
 
 **`responsive.spec.ts`**
 

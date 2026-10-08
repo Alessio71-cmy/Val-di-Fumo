@@ -209,3 +209,26 @@ test('installazione: stato, pulsante "Installa l’app" (evento beforeinstallpro
   await expect(p2.getByTestId('install-line')).toContainText('apri lo stesso indirizzo in Safari', { timeout: 20_000 });
   await c2.close();
 });
+
+test('condivisione del link dell’app: indirizzo pulito (senza #sezione), avviso che non prova l’installazione altrui', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await openApp(page);
+  await tab(page, 'sicurezza');
+  await openFold(page, 'sec-offline');
+  await expect(page.getByText(/non prova/).first()).toBeVisible();
+  await page.getByTestId('copy-link').click();
+  await expect(page.getByText('Link copiato')).toBeVisible();
+  const clip = await page.evaluate(() => navigator.clipboard.readText());
+  expect(clip).toBe(new URL('/', page.url()).toString());
+  expect(clip).not.toContain('#');
+  // Web Share API (simulata): riceve titolo e indirizzo
+  await page.evaluate(() => {
+    (navigator as unknown as { share: (d: unknown) => Promise<void> }).share = async (d) => {
+      (window as unknown as { __shared: unknown }).__shared = d;
+    };
+  });
+  await page.getByTestId('share-link').click();
+  const shared = (await page.evaluate(() => (window as unknown as { __shared?: { title?: string; url?: string } }).__shared)) as { title?: string; url?: string } | undefined;
+  expect(shared?.title).toContain('Val di Fumo');
+  expect(shared?.url).toBe(new URL('/', page.url()).toString());
+});
