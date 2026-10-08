@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Val di Fumo — Trail Companion",
+  "short_name": "Val di Fumo",
+  "description": "Compagno escursionistico offline per Cascata del Leno, Lago di Malga Bissina e Rifugio Val di Fumo (Trentino).",
+  "lang": "it",
+  "dir": "ltr",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f1e8",
+  "theme_color": "#14532d",
+  "categories": ["navigation", "travel", "sports"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

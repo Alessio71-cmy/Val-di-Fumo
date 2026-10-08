@@ -119,7 +119,16 @@ function toWaypoint(raw: RawPoint): Waypoint | null {
     },
     chainOutM: onRoute ? raw.chainOut : undefined,
     offRouteM: raw.offOutM,
+    routeRefs: buildRefs(raw),
   };
+}
+
+function buildRefs(raw: RawPoint): Record<string, { chainM: number; offM: number }> {
+  const refs: Record<string, { chainM: number; offM: number }> = {};
+  if (raw.chainOut !== undefined && raw.offOutM !== undefined) refs['route-out'] = { chainM: raw.chainOut, offM: raw.offOutM };
+  if (raw.chainOutBank !== undefined && raw.offOutBankM !== undefined) refs['route-out-bank'] = { chainM: raw.chainOutBank, offM: raw.offOutBankM };
+  if (raw.chainLeno !== undefined && raw.offLenoM !== undefined) refs['walk-leno'] = { chainM: raw.chainLeno, offM: raw.offLenoM };
+  return refs;
 }
 
 function endpoint(v: number | 'start' | 'end', length: number): number {
@@ -180,6 +189,17 @@ export function buildTrip(geo: GeoBundle): TripBuild {
   }
   if (!geo.drive.ok) warnings.push('Tratti in auto non disponibili: durate di guida sostituite da valori prudenziali predefiniti.');
   if (!geo.horizon.ok) warnings.push('Profilo dell’orizzonte non disponibile: niente stima del sole diretto.');
+
+  // percorsi di ritorno: stesse posizioni, progressiva speculare
+  for (const w of Object.values(points)) {
+    const refs = w.routeRefs ?? {};
+    for (const [fwd, back] of [['route-out', 'route-back'], ['route-out-bank', 'route-back-bank']] as const) {
+      const f = refs[fwd];
+      const L = routes[fwd]?.lengthM;
+      if (f && L !== undefined) refs[back] = { chainM: Math.max(0, L - f.chainM), offM: f.offM };
+    }
+    w.routeRefs = refs;
+  }
 
   const stages: Stage[] = STAGE_CONTENT.map((c) => {
     const route = c.routeId ? routes[c.routeId] : undefined;

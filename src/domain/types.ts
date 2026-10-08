@@ -77,6 +77,8 @@ export interface Waypoint extends GeoEntity {
   chainOutM?: number;
   /** Distanza (m) dalla traccia di andata. */
   offRouteM?: number;
+  /** Progressiva e distanza dalla traccia per ciascun percorso (per ordine dei punti e "prossimo waypoint"). */
+  routeRefs?: Record<string, { chainM: number; offM: number }>;
 }
 
 export interface Parking extends GeoEntity {
