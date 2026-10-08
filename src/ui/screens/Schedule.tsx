@@ -197,7 +197,7 @@ export function SchedulePage({ onBack }: { onBack: () => void }) {
           <div key={k} className="row between" style={{ padding: '6px 0' }}>
             <label htmlFor={`drive-${k}`}>
               {label}
-              {leg ? <span className="muted small"> ({leg.distanceKm} km, stima {leg.rangeMinutes[0]}–{leg.rangeMinutes[1]} min)</span> : null}
+              {leg ? <span className="muted small"> ({leg.distanceKm} km, stima {leg.rangeMinutes[0]}–{leg.rangeMinutes[1]} min)</span> : <span className="muted small"> (valore generico: dati stradali non disponibili)</span>}
             </label>
             <span className="row">
               <input
@@ -207,7 +207,7 @@ export function SchedulePage({ onBack }: { onBack: () => void }) {
                 min={5}
                 max={400}
                 style={{ width: 84 }}
-                value={prefs.driveOverrides[k] ?? leg?.nominalMinutes ?? ''}
+                value={prefs.driveOverrides[k] ?? leg?.nominalMinutes ?? TRIP_CONFIG.fallbackMin[k]}
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   const next = { ...prefs.driveOverrides };

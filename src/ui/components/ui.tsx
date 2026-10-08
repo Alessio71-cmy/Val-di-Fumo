@@ -36,6 +36,9 @@ export function Stat({ label, value, sub, id }: { label: string; value: ReactNod
 /** Foglio modale con focus intrappolato, chiusura con Esc e ripristino del focus. */
 export function Sheet({ title, onClose, children, id }: { title: string; onClose: () => void; children: ReactNode; id?: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  // onClose è spesso una funzione nuova a ogni render: tenuta in un ref per montare gli effetti (focus, blocco scorrimento) una volta sola
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
     const el = ref.current;
@@ -43,7 +46,7 @@ export function Sheet({ title, onClose, children, id }: { title: string; onClose
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        onClose();
+        closeRef.current();
       }
       if (e.key === 'Tab' && el) {
         const f = Array.from(el.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input,select,textarea,summary,[tabindex]:not([tabindex="-1"])'));
@@ -66,7 +69,7 @@ export function Sheet({ title, onClose, children, id }: { title: string; onClose
       document.body.style.overflow = '';
       prev?.focus?.();
     };
-  }, [onClose]);
+  }, []);
   return (
     <div className="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="sheet" role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} ref={ref} id={id}>

@@ -75,9 +75,12 @@ export const StaticMap = forwardRef<MapHandle, StaticMapProps>(function StaticMa
   }, [position]);
   useImperativeHandle(ref, () => ({ fit, center }), [fit, center]);
 
-  // pan/zoom con puntatori (trascina, rotella, pizzica)
-  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  // pan/zoom con puntatori (trascina, rotella, pizzica).
+  // Il puntatore viene "catturato" solo quando il movimento supera una soglia: catturarlo già al tocco farebbe arrivare il click
+  // al contenitore invece che al punto toccato e renderebbe i marker non selezionabili con il tocco.
+  const pointers = useRef(new Map<number, { x: number; y: number; sx: number; sy: number; captured: boolean }>());
   const pinch = useRef<number | null>(null);
+  const dragged = useRef(false);
   const toUnits = (px: number, py: number, v: VB) => {
     const r = box.current!.getBoundingClientRect();
     return { x: v.x + ((px - r.left) / r.width) * v.w, y: v.y + ((py - r.top) / r.height) * v.h };
@@ -92,22 +95,36 @@ export const StaticMap = forwardRef<MapHandle, StaticMapProps>(function StaticMa
       return { x: u.x - fx * w, y: u.y - fy * h, w, h };
     });
   const onDown = (e: React.PointerEvent) => {
-    (e.currentTarget as Element).setPointerCapture(e.pointerId);
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, captured: false });
     pinch.current = null;
+    dragged.current = false;
   };
   const onMove = (e: React.PointerEvent) => {
     const prev = pointers.current.get(e.pointerId);
     if (!prev || !box.current) return;
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const cur = { ...prev, x: e.clientX, y: e.clientY };
+    if (!cur.captured && Math.hypot(e.clientX - prev.sx, e.clientY - prev.sy) > 6) {
+      try {
+        (e.currentTarget as Element).setPointerCapture(e.pointerId);
+      } catch {
+        /* puntatore già rilasciato */
+      }
+      cur.captured = true;
+      dragged.current = true;
+    }
+    pointers.current.set(e.pointerId, cur);
+    if (!cur.captured && pointers.current.size === 1) return;
     const r = box.current.getBoundingClientRect();
     if (pointers.current.size === 1) {
       setVb((v) => ({ ...v, x: v.x - ((e.clientX - prev.x) / r.width) * v.w, y: v.y - ((e.clientY - prev.y) / r.height) * v.h }));
     } else if (pointers.current.size === 2) {
-      const [a, b] = Array.from(pointers.current.values()) as [{ x: number; y: number }, { x: number; y: number }];
-      const d = Math.hypot(a.x - b.x, a.y - b.y);
-      if (pinch.current) zoomAt(pinch.current / d, (a.x + b.x) / 2, (a.y + b.y) / 2);
-      pinch.current = d;
+      dragged.current = true;
+      const [a, b] = Array.from(pointers.current.values());
+      if (a && b) {
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinch.current) zoomAt(pinch.current / d, (a.x + b.x) / 2, (a.y + b.y) / 2);
+        pinch.current = d;
+      }
     }
   };
   const onUp = (e: React.PointerEvent) => {
@@ -115,6 +132,14 @@ export const StaticMap = forwardRef<MapHandle, StaticMapProps>(function StaticMa
     pinch.current = null;
   };
   const onWheel = (e: React.WheelEvent) => zoomAt(e.deltaY > 0 ? 1.15 : 0.87, e.clientX, e.clientY);
+  /** Dopo un trascinamento il click finale non deve selezionare/deselezionare nulla. */
+  const swallowClick = () => {
+    if (dragged.current) {
+      dragged.current = false;
+      return true;
+    }
+    return false;
+  };
 
   const scale = vb.w; // unità per larghezza vista, per le dimensioni dei testi/marker
   const r = scale * 0.012; // raggio marker in unità
@@ -126,7 +151,7 @@ export const StaticMap = forwardRef<MapHandle, StaticMapProps>(function StaticMa
   })() : null;
 
   return (
-    <div ref={box} className="map" data-testid="svg-map" role="region" aria-label="Mappa schematica locale. Trascina per spostare, due dita o rotella per lo zoom." style={{ touchAction: 'none', background: '#ece6d4' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onWheel={onWheel} onClick={() => onSelect(null)}>
+    <div ref={box} className="map" data-testid="svg-map" role="region" aria-label="Mappa schematica locale. Trascina per spostare, due dita o rotella per lo zoom." style={{ touchAction: 'none', background: '#ece6d4' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onWheel={onWheel} onClick={() => { if (!swallowClick()) onSelect(null); }}>
       <svg viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden={false}>
         {pack && imgBox ? <image href={pack.hillshadeUrl} x={imgBox.x} y={imgBox.y} width={imgBox.w} height={imgBox.h} preserveAspectRatio="none" /> : null}
         {pack?.areas.features.map((f, i) =>
@@ -161,7 +186,7 @@ export const StaticMap = forwardRef<MapHandle, StaticMapProps>(function StaticMa
               aria-pressed={sel}
               onClick={(e) => {
                 e.stopPropagation();
-                onSelect(w.id);
+                if (!swallowClick()) onSelect(w.id);
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -175,9 +200,11 @@ export const StaticMap = forwardRef<MapHandle, StaticMapProps>(function StaticMa
               <text x={x} y={y} fontSize={r * 1.3} fill="#fff" textAnchor="middle" dominantBaseline="central" fontWeight={800} style={{ pointerEvents: 'none' }}>
                 {i + 1}
               </text>
-              <text x={x + r * 1.7} y={y} fontSize={r * 1.25} fill="#111" stroke="#fff" strokeWidth={r * 0.35} paintOrder="stroke" dominantBaseline="central" fontWeight={700} style={{ pointerEvents: 'none' }}>
-                {p.name.replace(/ \(.*/, '').slice(0, 26)}
-              </text>
+              {sel || vb.w < bounds.w * 0.45 ? (
+                <text x={x + r * 1.7} y={y} fontSize={r * 1.25} fill="#111" stroke="#fff" strokeWidth={r * 0.35} paintOrder="stroke" dominantBaseline="central" fontWeight={700}>
+                  {p.name.replace(/ \(.*/, '').slice(0, 26)}
+                </text>
+              ) : null}
             </g>
           );
         })}

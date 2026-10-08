@@ -104,7 +104,7 @@ function Shell() {
       </a>
       <header className="topbar" role="banner">
         <span className="title">Val di Fumo · {TAB_TITLE[tab]}</span>
-        <TopChips goto={goto} />
+        {tab === 'mappa' ? null : <TopChips goto={goto} />}
       </header>
       {a.sw.updateAvailable ? (
         <div className="card alert-info" role="status" style={{ margin: '10px 14px 0' }} data-testid="update-banner">
@@ -114,7 +114,7 @@ function Shell() {
       ) : null}
       <main id="main" ref={mainRef} tabIndex={-1} className={tab === 'mappa' ? 'full' : undefined} data-tab={tab} style={{ outline: 'none' }}>
         {tab === 'oggi' ? <TodayScreen goto={goto} showSchedule={showSchedule} setShowSchedule={setShowSchedule} /> : null}
-        {tab === 'mappa' ? <MapScreen goto={goto} /> : null}
+        {tab === 'mappa' ? <MapScreen goto={goto} routeId={opts.routeId} /> : null}
         {tab === 'percorso' ? <RouteScreen goto={goto} initialStage={opts.stageId} /> : null}
         {tab === 'esplora' ? <ExploreScreen goto={goto} focus={opts.poiId} /> : null}
         {tab === 'sicurezza' ? <SafetyScreen focus={opts.section} /> : null}

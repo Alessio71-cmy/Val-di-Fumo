@@ -107,7 +107,7 @@ function weatherErrorText(e: unknown): string {
   return m;
 }
 
-const FALLBACK = { toBoazzo: 120, boazzoToDam: 25, home: 135, hikeOut: 105, hikeBack: 95 };
+const FALLBACK = TRIP_CONFIG.fallbackMin;
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -413,7 +413,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const refreshWeather = useCallback(() => void doWeather(true), [doWeather]);
 
   // ---- offline ----
-  const [offline, setOffline] = useState<ReadinessInfo | null>(null);
+  const [offlineRaw, setOffline] = useState<ReadinessInfo | null>(null);
+  /** Esito dell'ultima verifica PROFONDA (hash) fatta in questa sessione: se fallisce, "pronto" non può essere mostrato. */
+  const [deepReport, setDeepReport] = useState<VerifyReport | null>(null);
+  const offline = useMemo<ReadinessInfo | null>(() => {
+    if (!offlineRaw) return null;
+    const d = deepReport;
+    if (d && !d.ok && offlineRaw.installed && d.buildId === offlineRaw.installed.buildId && d.packVersion === offlineRaw.installed.packVersion) {
+      return {
+        ...offlineRaw,
+        state: 'partial',
+        missing: [...d.missing, ...d.corrupted],
+        reason: `La verifica ha trovato ${d.missing.length} risorse mancanti e ${d.corrupted.length} danneggiate: premi “Prepara il viaggio” per ripararle.`,
+      };
+    }
+    return offlineRaw;
+  }, [offlineRaw, deepReport]);
   const [sw, setSw] = useState<SwState>({ supported: false, registered: false, controlled: false, updateAvailable: false });
   const [prepare, setPrepare] = useState<PrepareState>({ running: false, progress: null, report: null, error: null, persisted: null });
   const refreshOffline = useCallback(async () => {
@@ -429,6 +444,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     void refreshOffline();
   }, [online, sw.controlled, sw.updateAvailable, refreshOffline]);
 
+  const autoDeep = useRef(false);
+  useEffect(() => {
+    if (autoDeep.current || offlineRaw?.state !== 'ready' || !offlineRaw.installed) return;
+    const installed = offlineRaw.installed;
+    const t = window.setTimeout(() => {
+      autoDeep.current = true;
+      void verifyAll(installed, { deep: true }).then(setDeepReport).catch(() => undefined);
+    }, 1500);
+    return () => window.clearTimeout(t);
+  }, [offlineRaw]);
+
   const prepareTrip = useCallback(async () => {
     setPrepare({ running: true, progress: null, report: null, error: null, persisted: null });
     try {
@@ -436,6 +462,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!manifest) throw new Error('Impossibile leggere l’elenco delle risorse: serve la rete (o questa è una build di sviluppo).');
       const persisted = await requestPersistence();
       const report = await downloadAndVerify(manifest, { onProgress: (progress) => setPrepare((s) => ({ ...s, progress })) });
+      setDeepReport(report);
       setPrepare({ running: false, progress: null, report, error: report.ok ? null : `Verifica non superata: ${report.missing.length} mancanti, ${report.corrupted.length} danneggiate.`, persisted });
     } catch (e) {
       setPrepare({ running: false, progress: null, report: null, error: e instanceof Error ? e.message : 'Preparazione non riuscita', persisted: null });
@@ -447,6 +474,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const info = await evaluateReadiness();
     if (!info.installed) return null;
     const report = await verifyAll(info.installed, { deep: true });
+    setDeepReport(report);
     setPrepare((s) => ({ ...s, report, error: report.ok ? null : `Verifica non superata: ${report.missing.length} mancanti, ${report.corrupted.length} danneggiate.` }));
     await refreshOffline();
     return report;

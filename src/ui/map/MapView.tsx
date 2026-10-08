@@ -24,6 +24,8 @@ export interface MapViewProps {
   onSelect: (id: string | null) => void;
   /** Il contesto WebGL non è disponibile o è andato perso: l'interfaccia passa alla mappa schematica. */
   onFail: (reason: string) => void;
+  /** Spazio (px) coperto dai controlli sovrapposti in alto e in basso: la traccia va inquadrata nella parte libera. */
+  insets?: { top: number; bottom: number };
 }
 
 const line = (coords: LngLat[]): GeoJSON.FeatureCollection => ({
@@ -42,11 +44,14 @@ function btn(cls: string, label: string, text: string, pressed = false): HTMLBut
 }
 
 export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(props, ref) {
-  const { trip, pack, routeId, otherRouteId, position, imported, selectedId, onSelect, onFail } = props;
+  const { trip, pack, routeId, otherRouteId, position, imported, selectedId, onSelect, onFail, insets } = props;
+  const insetsRef = useRef(insets ?? { top: 110, bottom: 150 });
+  insetsRef.current = insets ?? insetsRef.current;
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
-  const wpMarkers = useRef<Map<string, { marker: Marker; el: HTMLButtonElement }>>(new Map());
-  const critMarkers = useRef<Marker[]>([]);
+  const wpMarkers = useRef<Map<string, { marker: Marker; el: HTMLButtonElement; prio: number }>>(new Map());
+  const critMarkers = useRef<Array<{ marker: Marker; el: HTMLButtonElement }>>([]);
+  const selectedRef = useRef<string | null>(null);
   const userMarker = useRef<Marker | null>(null);
   const posRef = useRef<GPSPosition | null>(null);
   const routeRef = useRef<Route | undefined>(undefined);
@@ -56,6 +61,7 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
   const onFailRef = useRef(onFail);
   onFailRef.current = onFail;
   posRef.current = position;
+  selectedRef.current = selectedId;
   routeRef.current = trip.routes[routeId];
 
   const fitRoute = () => {
@@ -72,7 +78,8 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
       if (y < s) s = y;
       if (y > n) n = y;
     }
-    m.fitBounds([[w, s], [e, n]], { padding: { top: 120, bottom: 150, left: 36, right: 36 }, duration: 600, maxZoom: 16 });
+    const ins = insetsRef.current;
+    m.fitBounds([[w, s], [e, n]], { padding: { top: ins.top + 14, bottom: ins.bottom + 14, left: 30, right: 30 }, duration: 600, maxZoom: 16 });
   };
   const centerOnUser = () => {
     const m = mapRef.current;
@@ -119,6 +126,7 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
     canvas.addEventListener('webglcontextlost', lost);
     map.on('load', () => {
       loaded.current = true;
+      if (el.current) el.current.dataset.ready = '1';
       // etichette DOM: cime, laghi, rifugi (non interattive)
       for (const l of pack.labels) {
         if (l.t === 'saddle' || l.t === 'information') continue;
@@ -133,21 +141,26 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
       syncMarkers();
       syncUser();
       fitRoute();
-      map.on('zoom', applyZoomBand);
+      map.on('zoom', () => {
+        applyZoomBand();
+        declutter();
+      });
       applyZoomBand();
+      declutter();
     });
     map.on('click', () => onSelectRef.current(null));
     return () => {
       canvas.removeEventListener('webglcontextlost', lost);
       wpMarkers.current.forEach((m) => m.marker.remove());
       wpMarkers.current.clear();
-      critMarkers.current.forEach((m) => m.remove());
+      critMarkers.current.forEach((m) => m.marker.remove());
       critMarkers.current = [];
       userMarker.current?.remove();
       userMarker.current = null;
       map.remove();
       mapRef.current = null;
       loaded.current = false;
+      if (el.current) delete el.current.dataset.ready;
     };
     // la mappa si crea una sola volta per pacchetto
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -159,6 +172,29 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
     if (!m || !c) return;
     const z = m.getZoom();
     c.dataset.z = z < 12.5 ? 'low' : z < 14 ? 'mid' : 'high';
+  }
+
+  /**
+   * Evita marker sovrapposti (bersagli di tocco coperti l'uno dall'altro): se due punti distano meno di 30 px sullo schermo
+   * resta visibile il più importante (rifugio > parcheggio > malghe > cascate > punti critici; il punto selezionato vince sempre).
+   * I punti nascosti restano disponibili in "Elenco punti" e ricompaiono ingrandendo.
+   */
+  function declutter() {
+    const m = mapRef.current;
+    const c = el.current;
+    if (!m || !c || !loaded.current) return;
+    const band = c.dataset.z;
+    const items: Array<{ el: HTMLElement; ll: { lng: number; lat: number }; prio: number }> = [];
+    wpMarkers.current.forEach((x, id) => items.push({ el: x.el, ll: x.marker.getLngLat(), prio: id === selectedRef.current ? 9 : x.prio }));
+    for (const x of critMarkers.current) if (band === 'high') items.push({ el: x.el, ll: x.marker.getLngLat(), prio: 1 });
+    items.sort((a, b) => b.prio - a.prio);
+    const kept: Array<{ x: number; y: number }> = [];
+    for (const it of items) {
+      const p = m.project([it.ll.lng, it.ll.lat]);
+      const clash = kept.some((k) => Math.hypot(k.x - p.x, k.y - p.y) < 30);
+      it.el.style.visibility = clash ? 'hidden' : '';
+      if (!clash) kept.push({ x: p.x, y: p.y });
+    }
   }
 
   function syncRoutes() {
@@ -176,7 +212,7 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
     if (!m || !loaded.current) return;
     wpMarkers.current.forEach((x) => x.marker.remove());
     wpMarkers.current.clear();
-    critMarkers.current.forEach((x) => x.remove());
+    critMarkers.current.forEach((x) => x.marker.remove());
     critMarkers.current = [];
     const wps = routeWaypoints(trip, routeId);
     wps.forEach((w, i) => {
@@ -189,7 +225,9 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
         onSelectRef.current(w.id);
       });
       const marker = new maplibregl.Marker({ element: b }).setLngLat(p.coordinates).addTo(m);
-      wpMarkers.current.set(w.id, { marker, el: b });
+      b.setAttribute('aria-label', `Punto ${i + 1}: ${p.name}, a ${fmtDistance(w.chainM)} dall'inizio del percorso`); // MapLibre imposta "Map marker" in addTo()
+      const prio = p.type === 'hut' ? 5 : p.type === 'parking' ? 4 : p.type === 'waterfall' ? 2 : 3;
+      wpMarkers.current.set(w.id, { marker, el: b, prio });
     });
     const crit: CriticalPoint[] = trip.criticalPoints.filter((c) => c.routeId === routeId);
     for (const c of crit) {
@@ -198,8 +236,10 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
         ev.stopPropagation();
         onSelectRef.current(c.id);
       });
-      critMarkers.current.push(new maplibregl.Marker({ element: b }).setLngLat(c.coordinates).addTo(m));
+      critMarkers.current.push({ marker: new maplibregl.Marker({ element: b }).setLngLat(c.coordinates).addTo(m), el: b });
+      b.setAttribute('aria-label', `${c.label} a ${fmtDistance(c.chainM)} dall'inizio: ${c.detail}`);
     }
+    declutter();
   }
 
   function syncUser() {
@@ -233,7 +273,8 @@ export const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(prop
   useEffect(syncUser, [position]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     wpMarkers.current.forEach((x, id) => x.el.setAttribute('aria-pressed', String(id === selectedId)));
-  }, [selectedId]);
+    declutter();
+  }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div

@@ -25,6 +25,9 @@ export const TRIP_CONFIG = {
 
   paceFactors: { veloce: 0.85, normale: 1.0, lento: 1.25 },
 
+  /** Valori GENERICI (minuti) usati solo se mancano i dati stradali/di cammino: sono stime prudenziali, dichiarate come tali nell'interfaccia. */
+  fallbackMin: { toBoazzo: 120, boazzoToDam: 25, home: 135, hikeOut: 105, hikeBack: 95 },
+
   safety: {
     /** Margine di sicurezza sul tempo di cammino del ritorno. */
     marginFraction: 0.15,

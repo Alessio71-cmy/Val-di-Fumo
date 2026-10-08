@@ -21,7 +21,7 @@ const GPS_PROBLEM: Record<string, string> = {
   insecure: 'La geolocalizzazione richiede una connessione sicura (HTTPS): apri l’app dall’indirizzo https.',
 };
 
-export function MapScreen({ goto }: { goto: GotoFn }) {
+export function MapScreen({ goto, routeId }: { goto: GotoFn; routeId?: string }) {
   const a = useApp();
   const { trip, mapPack, gps, nav, activeRouteId, prefs, loading } = a;
   const ref = useRef<MapHandle>(null);
@@ -29,11 +29,37 @@ export function MapScreen({ goto }: { goto: GotoFn }) {
   const [forceSvg, setForceSvg] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
   const gl = useMemo(() => webglSupported(), []);
+  const hudRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const [insets, setInsets] = useState({ top: 110, bottom: 180 });
 
   useEffect(() => {
     a.loadMap();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [a.mapPack]);
+
+  // "Vedi sulla mappa" da una tappa o dalla variante: mostra il percorso richiesto
+  useEffect(() => {
+    if (routeId && trip?.routes[routeId]) a.setRouteOverride(routeId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeId, trip]);
+
+  // ingombro dei controlli sovrapposti: la traccia viene inquadrata nella parte libera della mappa
+  useEffect(() => {
+    const hud = hudRef.current;
+    const bottom = bottomRef.current;
+    if (!hud || !bottom || typeof ResizeObserver === 'undefined') return;
+    const measure = () => setInsets((cur) => {
+      const top = Math.round(hud.getBoundingClientRect().height + 6);
+      const b = Math.round(bottom.getBoundingClientRect().height);
+      return Math.abs(cur.top - top) < 4 && Math.abs(cur.bottom - b) < 4 ? cur : { top, bottom: b };
+    });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(hud);
+    ro.observe(bottom);
+    return () => ro.disconnect();
+  }, [loading, trip]);
 
   if (loading || !trip) return <p role="status" style={{ padding: 16 }}>Caricamento…</p>;
   const route = trip.routes[activeRouteId];
@@ -49,6 +75,7 @@ export function MapScreen({ goto }: { goto: GotoFn }) {
     );
   }
   const pack = mapPack && mapPack.ok ? mapPack.data : null;
+  const packLoading = !mapPack; // ancora in lettura: niente avvisi né mappa schematica finché non si sa com'è andata
   const useGl = !!pack && gl && !forceSvg;
   const policy = guidancePolicy(route.provenance.validation);
   const wps = routeWaypoints(trip, activeRouteId);
@@ -102,30 +129,26 @@ export function MapScreen({ goto }: { goto: GotoFn }) {
             selectedId={selected}
             onSelect={setSelected}
             onFail={(why) => setForceSvg(why)}
+            insets={insets}
           />
         </Suspense>
+      ) : packLoading ? (
+        <p role="status" className="map-loading">
+          Carico la mappa…
+        </p>
       ) : (
         <StaticMap ref={ref} trip={trip} pack={pack} routeId={activeRouteId} otherRouteId={bankOther} position={q?.usable ? pos : null} imported={imported} selectedId={selected} onSelect={setSelected} />
       )}
 
-      <div className="map-hud" aria-live="off">
+      <h1 className="sr-only">Mappa e posizione</h1>
+      <div className="map-hud" aria-live="off" ref={hudRef}>
         <Stat label="Dove sono" value={whereTitle} sub={whereSub} id="hud-where" />
         <Stat label="Dove devo andare" value={<span style={{ fontSize: '0.92em' }}>{nextName}</span>} sub={`tra ${nextDist}`} id="hud-next" />
         <Stat label="Quanto manca" value={remainingVal} sub={remainingSub} id="hud-left" />
       </div>
 
-      <div className="map-bottom">
+      <div className="map-bottom" ref={bottomRef}>
         <div className="map-controls">
-          <div className="map-chips" role="group" aria-label="Percorso mostrato">
-            {chips.map((c) => (
-              <button key={c.id} aria-pressed={activeRouteId === c.id} onClick={() => a.setRouteOverride(c.id)}>
-                {c.label}
-              </button>
-            ))}
-            <button onClick={() => setListOpen(true)} aria-haspopup="dialog">
-              <Icon name="list" size={16} /> Elenco punti
-            </button>
-          </div>
           <div className="map-tools">
             <button className="btn secondary" onClick={() => ref.current?.center()} disabled={!pos} aria-label="Centra su di me" title="Centra su di me">
               <Icon name="target" />
@@ -143,6 +166,16 @@ export function MapScreen({ goto }: { goto: GotoFn }) {
               <Icon name="gps" />
             </button>
           </div>
+          <div className="map-chips" role="group" aria-label="Percorso mostrato">
+            {chips.map((c) => (
+              <button key={c.id} aria-pressed={activeRouteId === c.id} onClick={() => a.setRouteOverride(c.id)}>
+                {c.label}
+              </button>
+            ))}
+            <button onClick={() => setListOpen(true)} aria-haspopup="dialog">
+              <Icon name="list" size={16} /> Elenco punti
+            </button>
+          </div>
         </div>
 
         <div className="map-banner stack">
@@ -154,10 +187,17 @@ export function MapScreen({ goto }: { goto: GotoFn }) {
               {GPS_PROBLEM[gps.status]}
             </div>
           ) : null}
+          {!GPS_PROBLEM[gps.status] && gps.warning ? (
+            <div className="card alert-warning" role="status" style={{ margin: 0 }} data-testid="gps-warning">
+              {pos
+                ? 'Segnale GPS interrotto: la posizione mostrata può essere vecchia. Aspetta qualche secondo o cerca un punto con cielo libero.'
+                : 'Ancora nessun segnale GPS. Vai all’aperto, con cielo libero: il primo rilevamento può richiedere un minuto.'}
+            </div>
+          ) : null}
           {gps.status === 'idle' && !pos ? (
             <div className="card alert-info row between" style={{ margin: 0, padding: 10 }}>
               <span className="small">
-                <strong>GPS spento.</strong> Si attiva solo con il tuo consenso; la posizione resta sul telefono.
+                <strong>GPS spento.</strong> Parte solo se lo attivi tu.
               </span>
               <button className="btn small" onClick={a.startGps} data-testid="gps-enable">
                 <Icon name="gps" size={18} /> Attiva
@@ -176,9 +216,9 @@ export function MapScreen({ goto }: { goto: GotoFn }) {
               <strong>Possibile allontanamento dalla traccia mappata</strong> (≈{nav ? fmtDistance(nav.distToRouteM) : '—'}). La traccia è derivata da OpenStreetMap e può differire dal sentiero reale: controlla segnavia e mappa. Nessun allarme: è solo un’indicazione.
             </div>
           ) : null}
-          {!pack ? (
+          {!pack && !packLoading ? (
             <div className="card alert-warning" role="status" style={{ margin: 0 }} data-testid="no-pack">
-              <strong>Pacchetto mappa non disponibile</strong> ({mapPack && !mapPack.ok ? 'non è stato scaricato' : 'in caricamento'}): uso la mappa schematica con traccia e punti.{' '}
+              <strong>Pacchetto mappa non disponibile</strong> (non è stato scaricato o non è leggibile): uso la mappa schematica con traccia e punti.{' '}
               <button className="btn small ghost" onClick={() => goto('oggi')}>
                 Prepara il viaggio
               </button>
@@ -211,7 +251,7 @@ export function MapScreen({ goto }: { goto: GotoFn }) {
         </div>
 
         <div className="map-attrib" aria-label="Attribuzioni">
-          © OpenStreetMap contributors (ODbL) · Rilievo: EU-DEM/Copernicus · Traccia da OSM, non verificata sul campo
+          © OpenStreetMap contributors (ODbL) · EU-DEM/Copernicus · traccia non verificata sul campo
         </div>
       </div>
 
