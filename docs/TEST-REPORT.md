@@ -106,7 +106,7 @@ I risultati strutturati vengono scritti in `test-results/` (non versionata); le 
 ## 7. Cosa i test **non** dimostrano (lacune dichiarate)
 
 1. **Nessun dispositivo fisico**: iPhone/Safari, Android reale, secondo telefono, modalità aereo vera, GPS vero senza dati, batteria/consumi, memoria, sole.
-2. **Solo Chromium**: Safari/WebKit e Firefox non provati. Possibili differenze su service worker, WebGL, geolocalizzazione e archiviazione.
+2. **Solo Chromium**: Safari/WebKit e Firefox non provati. Possibili differenze su service worker, WebGL, geolocalizzazione e archiviazione. *(Ho tentato di installare WebKit di Playwright, il motore più vicino a Safari: il download è bloccato dalla rete dell'ambiente e non l'ho aggirato. Anche con WebKit su Linux non si sarebbe comunque provato iOS.)*
 3. **Traccia e luoghi non verificati sul campo** né confrontati con fonti ufficiali; i test confrontano l'app con i dati della pipeline e con misure secondarie, non con il terreno.
 4. **Meteo dal vivo non provato**; **link esterni** (navigazione stradale) solo come costruzione degli indirizzi.
 5. **Accessibilità**: nessun lettore di schermo reale.
