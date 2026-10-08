@@ -1,0 +1,391 @@
+{
+ "meta": {
+  "demZoom": 13,
+  "generatedAt": "2026-10-08T12:09:55Z",
+  "osmRelease": "2026-09-23.1",
+  "retrievedAt": "2026-10-08"
+ },
+ "points": {
+  "bridge-leno": {
+   "chainLeno": 345,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "bridge",
+   "distFromFallNodeM": 178,
+   "eleDem": 1205.0,
+   "id": "bridge-leno",
+   "kind": "infra",
+   "lat": 46.003338,
+   "lon": 10.511513,
+   "name": null,
+   "offLenoM": 0,
+   "offOutBankM": 5408,
+   "offOutM": 5408,
+   "osm": [
+    "w228119292@4",
+    "w228119295@2",
+    "w228119296@2"
+   ]
+  },
+  "dam-bissina": {
+   "chainLeno": 0,
+   "chainOut": 230,
+   "chainOutBank": 230,
+   "cls": null,
+   "eleDem": 1766.0,
+   "id": "dam-bissina",
+   "kind": "building",
+   "lat": 46.053592,
+   "lon": 10.518904,
+   "name": "Diga di Malga Bissina",
+   "offLenoM": 5283,
+   "offOutBankM": 385,
+   "offOutM": 385,
+   "osm": [
+    "r4557683@3"
+   ]
+  },
+  "dam-boazzo": {
+   "chainLeno": 345,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": null,
+   "eleDem": 1235.0,
+   "id": "dam-boazzo",
+   "kind": "building",
+   "lat": 45.996399,
+   "lon": 10.523303,
+   "name": "Diga Malga Boazzo",
+   "offLenoM": 1195,
+   "offOutBankM": 6220,
+   "offOutM": 6220,
+   "osm": [
+    "r4557593@2"
+   ]
+  },
+  "fall-chiese": {
+   "chainLeno": 0,
+   "chainOut": 3639,
+   "chainOutBank": 3648,
+   "cls": "waterfall",
+   "eleDem": 1814.0,
+   "id": "fall-chiese",
+   "kind": "water",
+   "lat": 46.071698,
+   "lon": 10.541518,
+   "name": null,
+   "offLenoM": 7613,
+   "offOutBankM": 32,
+   "offOutM": 19,
+   "osm": [
+    "n965276885@2"
+   ]
+  },
+  "fall-lakeside": {
+   "chainLeno": 0,
+   "chainOut": 756,
+   "chainOutBank": 756,
+   "cls": "waterfall",
+   "eleDem": 1863.0,
+   "id": "fall-lakeside",
+   "kind": "water",
+   "lat": 46.058119,
+   "lon": 10.513305,
+   "name": null,
+   "offLenoM": 5761,
+   "offOutBankM": 66,
+   "offOutM": 66,
+   "osm": [
+    "n1111843019@2"
+   ]
+  },
+  "fall-leno": {
+   "chainLeno": 342,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "waterfall",
+   "eleDem": 1431.0,
+   "id": "fall-leno",
+   "kind": "water",
+   "lat": 46.00332,
+   "lon": 10.509217,
+   "name": "Cascata del Leno",
+   "offLenoM": 178,
+   "offOutBankM": 5419,
+   "offOutM": 5419,
+   "osm": [
+    "n3011054285@2"
+   ]
+  },
+  "fountain-rifugio": {
+   "chainLeno": 0,
+   "chainOut": 6091,
+   "chainOutBank": 6141,
+   "cls": "drinking_water",
+   "eleDem": 1900.0,
+   "id": "fountain-rifugio",
+   "kind": "infra",
+   "lat": 46.084434,
+   "lon": 10.562667,
+   "name": null,
+   "offLenoM": 9520,
+   "offOutBankM": 1,
+   "offOutM": 1,
+   "osm": [
+    "n5000770906@3"
+   ]
+  },
+  "lake-bissina": {
+   "chainLeno": 0,
+   "chainOut": 1794,
+   "chainOutBank": 1794,
+   "cls": "reservoir",
+   "eleDem": 1765.0,
+   "id": "lake-bissina",
+   "kind": "water",
+   "lat": 46.061865,
+   "lon": 10.526675,
+   "name": "Lago di Malga Bissina",
+   "offLenoM": 6277,
+   "offOutBankM": 338,
+   "offOutM": 338,
+   "osm": [
+    "r4557684@3"
+   ]
+  },
+  "lake-boazzo": {
+   "chainLeno": 345,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "reservoir",
+   "eleDem": 1205.0,
+   "id": "lake-boazzo",
+   "kind": "water",
+   "lat": 46.002662,
+   "lon": 10.516366,
+   "name": "Lago di Malga Boazzo",
+   "offLenoM": 383,
+   "offOutBankM": 5484,
+   "offOutM": 5484,
+   "osm": [
+    "r3953956@11"
+   ]
+  },
+  "malga-breguzzo": {
+   "chainLeno": 0,
+   "chainOut": 3494,
+   "chainOutBank": 3494,
+   "cls": null,
+   "eleDem": 1810.0,
+   "id": "malga-breguzzo",
+   "kind": "building",
+   "lat": 46.070927,
+   "lon": 10.540559,
+   "name": "Malga Breguzzo",
+   "offLenoM": 7510,
+   "offOutBankM": 8,
+   "offOutM": 8,
+   "osm": [
+    "w60145454@4"
+   ]
+  },
+  "malga-val-di-fumo": {
+   "chainLeno": 0,
+   "chainOut": 5699,
+   "chainOutBank": 5772,
+   "cls": "information",
+   "eleDem": 1884.0,
+   "id": "malga-val-di-fumo",
+   "kind": "infra",
+   "lat": 46.083538,
+   "lon": 10.558438,
+   "name": "Malga Val di Fumo",
+   "offLenoM": 9298,
+   "offOutBankM": 20,
+   "offOutM": 0,
+   "osm": [
+    "n5000770909@2"
+   ]
+  },
+  "park-boazzo-centrale": {
+   "chainLeno": 0,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "parking",
+   "eleDem": 1237.0,
+   "id": "park-boazzo-centrale",
+   "kind": "infra",
+   "lat": 46.006326,
+   "lon": 10.512187,
+   "name": null,
+   "offLenoM": 10,
+   "offOutBankM": 5075,
+   "offOutM": 5075,
+   "osm": [
+    "n3759967757@2"
+   ]
+  },
+  "park-boazzo-nord": {
+   "chainLeno": 0,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "parking",
+   "eleDem": 1240.0,
+   "id": "park-boazzo-nord",
+   "kind": "infra",
+   "lat": 46.010111,
+   "lon": 10.513762,
+   "name": null,
+   "offLenoM": 441,
+   "offOutBankM": 4653,
+   "offOutM": 4653,
+   "osm": [
+    "n2989519691@1"
+   ]
+  },
+  "park-dam": {
+   "chainLeno": 0,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "parking",
+   "eleDem": 1807.0,
+   "id": "park-dam",
+   "kind": "infra",
+   "lat": 46.05205,
+   "lon": 10.513409,
+   "name": null,
+   "offLenoM": 5087,
+   "offOutBankM": 27,
+   "offOutM": 27,
+   "osm": [
+    "w82897607@5"
+   ]
+  },
+  "park-dam-alt": {
+   "chainLeno": 0,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "parking",
+   "eleDem": 1860.0,
+   "id": "park-dam-alt",
+   "kind": "infra",
+   "lat": 46.050932,
+   "lon": 10.510649,
+   "name": null,
+   "offLenoM": 4964,
+   "offOutBankM": 266,
+   "offOutM": 266,
+   "osm": [
+    "w82897614@8"
+   ]
+  },
+  "piana-val-di-fumo": {
+   "chainLeno": 0,
+   "chainOut": 6096,
+   "chainOutBank": 6145,
+   "cls": "information",
+   "eleDem": 1899.0,
+   "id": "piana-val-di-fumo",
+   "kind": "infra",
+   "lat": 46.09053,
+   "lon": 10.566615,
+   "name": "Piana della Val di Fumo",
+   "offLenoM": 10263,
+   "offOutBankM": 738,
+   "offOutM": 738,
+   "osm": [
+    "n5035244590@3"
+   ]
+  },
+  "rifugio-val-di-fumo": {
+   "chainLeno": 0,
+   "chainOut": 6096,
+   "chainOutBank": 6145,
+   "cls": null,
+   "eleDem": 1896.0,
+   "id": "rifugio-val-di-fumo",
+   "kind": "building",
+   "lat": 46.084493,
+   "lon": 10.562531,
+   "name": "Rifugio Val Di Fumo",
+   "offLenoM": 9521,
+   "offOutBankM": 14,
+   "offOutM": 14,
+   "osm": [
+    "w82967465@6"
+   ]
+  },
+  "sign-breguzzo": {
+   "chainLeno": 0,
+   "chainOut": 3531,
+   "chainOutBank": 3521,
+   "cls": "information",
+   "eleDem": 1812.0,
+   "id": "sign-breguzzo",
+   "kind": "infra",
+   "lat": 46.071169,
+   "lon": 10.540738,
+   "name": "Malga di Breguzzo",
+   "offLenoM": 7540,
+   "offOutBankM": 15,
+   "offOutM": 5,
+   "osm": [
+    "n5000770915@2"
+   ]
+  },
+  "toilets-dam": {
+   "chainLeno": 0,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "toilets",
+   "eleDem": 1857.0,
+   "id": "toilets-dam",
+   "kind": "infra",
+   "lat": 46.051505,
+   "lon": 10.511461,
+   "name": null,
+   "offLenoM": 5026,
+   "offOutBankM": 184,
+   "offOutM": 184,
+   "osm": [
+    "w506258604@2"
+   ]
+  },
+  "view-leno": {
+   "chainLeno": 345,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "viewpoint",
+   "eleDem": 1418.0,
+   "id": "view-leno",
+   "kind": "infra",
+   "lat": 46.003177,
+   "lon": 10.50938,
+   "name": null,
+   "offLenoM": 166,
+   "offOutBankM": 5434,
+   "offOutM": 5434,
+   "osm": [
+    "n2371177775@1"
+   ]
+  },
+  "water-boazzo": {
+   "chainLeno": 0,
+   "chainOut": 0,
+   "chainOutBank": 0,
+   "cls": "drinking_water",
+   "eleDem": 1527.0,
+   "id": "water-boazzo",
+   "kind": "infra",
+   "lat": 46.012083,
+   "lon": 10.520393,
+   "name": null,
+   "offLenoM": 900,
+   "offOutBankM": 4463,
+   "offOutM": 4463,
+   "osm": [
+    "n2376443057@1"
+   ]
+  }
+ }
+}

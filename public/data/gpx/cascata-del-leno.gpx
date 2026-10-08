@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Val di Fumo Trail Companion" xmlns="http://www.topografix.com/GPX/1/1">
+<metadata>
+<name>Passeggiata alla Cascata del Leno</name>
+<desc>Traccia DERIVATA da OpenStreetMap (ODbL), non rilevata sul campo ne' confrontata con la traccia ufficiale SAT. Quote da DEM (stime).</desc>
+<copyright author="OpenStreetMap contributors"><year>2026</year><license>https://opendatacommons.org/licenses/odbl/1-0/</license></copyright>
+<time>2026-10-08T12:09:55Z</time>
+</metadata>
+<wpt lat="46.006326" lon="10.512187">
+<ele>1237</ele>
+<name>Parcheggio Centrale di Boazzo</name>
+</wpt>
+<wpt lat="46.003320" lon="10.509217">
+<ele>1431</ele>
+<name>Cascata del Leno (nodo OSM)</name>
+</wpt>
+<trk><name>Passeggiata alla Cascata del Leno</name><desc>Traccia DERIVATA da OpenStreetMap (ODbL), non rilevata sul campo ne' confrontata con la traccia ufficiale SAT. Quote da DEM (stime).</desc><trkseg>
+<trkpt lat="46.006279" lon="10.512295"><ele>1234</ele></trkpt>
+<trkpt lat="46.006228" lon="10.512258"><ele>1237</ele></trkpt>
+<trkpt lat="46.006174" lon="10.512231"><ele>1240</ele></trkpt>
+<trkpt lat="46.006074" lon="10.512205"><ele>1242</ele></trkpt>
+<trkpt lat="46.006059" lon="10.512203"><ele>1242</ele></trkpt>
+<trkpt lat="46.006031" lon="10.512165"><ele>1243</ele></trkpt>
+<trkpt lat="46.006028" lon="10.512160"><ele>1243</ele></trkpt>
+<trkpt lat="46.005922" lon="10.512097"><ele>1248</ele></trkpt>
+<trkpt lat="46.005815" lon="10.512049"><ele>1252</ele></trkpt>
+<trkpt lat="46.005711" lon="10.511956"><ele>1257</ele></trkpt>
+<trkpt lat="46.005596" lon="10.511886"><ele>1253</ele></trkpt>
+<trkpt lat="46.005494" lon="10.511834"><ele>1253</ele></trkpt>
+<trkpt lat="46.005329" lon="10.511706"><ele>1265</ele></trkpt>
+<trkpt lat="46.005148" lon="10.511686"><ele>1265</ele></trkpt>
+<trkpt lat="46.004932" lon="10.511628"><ele>1267</ele></trkpt>
+<trkpt lat="46.004786" lon="10.511500"><ele>1271</ele></trkpt>
+<trkpt lat="46.004705" lon="10.511508"><ele>1270</ele></trkpt>
+<trkpt lat="46.004608" lon="10.511599"><ele>1267</ele></trkpt>
+<trkpt lat="46.004527" lon="10.511628"><ele>1262</ele></trkpt>
+<trkpt lat="46.004435" lon="10.511595"><ele>1257</ele></trkpt>
+<trkpt lat="46.004300" lon="10.511599"><ele>1250</ele></trkpt>
+<trkpt lat="46.004117" lon="10.511591"><ele>1249</ele></trkpt>
+<trkpt lat="46.003904" lon="10.511603"><ele>1223</ele></trkpt>
+<trkpt lat="46.003851" lon="10.511571"><ele>1217</ele></trkpt>
+<trkpt lat="46.003804" lon="10.511565"><ele>1211</ele></trkpt>
+<trkpt lat="46.003699" lon="10.511588"><ele>1198</ele></trkpt>
+<trkpt lat="46.003589" lon="10.511547"><ele>1201</ele></trkpt>
+<trkpt lat="46.003504" lon="10.511503"><ele>1202</ele></trkpt>
+<trkpt lat="46.003437" lon="10.511509"><ele>1203</ele></trkpt>
+<trkpt lat="46.003338" lon="10.511513"><ele>1205</ele></trkpt>
+</trkseg></trk></gpx>

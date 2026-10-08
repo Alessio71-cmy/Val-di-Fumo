@@ -1,0 +1,234 @@
+{
+ "meta": {
+  "generatedAt": "2026-10-08T12:09:55Z",
+  "osmRelease": "2026-09-23.1",
+  "demZoom": 13,
+  "retrievedAt": "2026-10-08"
+ },
+ "checks": [
+  {
+   "check": "snap:park-dam",
+   "distM": 26.9,
+   "edgeClass": "path",
+   "osm": [
+    "w839560170@1"
+   ],
+   "ok": true
+  },
+  {
+   "check": "snap:malga-breguzzo",
+   "distM": 7.9,
+   "edgeClass": "path",
+   "osm": [
+    "w511165932@1"
+   ],
+   "ok": true
+  },
+  {
+   "check": "snap:rifugio-val-di-fumo",
+   "distM": 13.6,
+   "edgeClass": "path",
+   "osm": [
+    "w229003180@11",
+    "w972952539@3",
+    "w972952540@1"
+   ],
+   "ok": true
+  },
+  {
+   "check": "ponte Leno: distanza dal nodo cascata (m)",
+   "value": 178,
+   "expected": [
+    0,
+    450
+   ],
+   "ok": true,
+   "note": "Ponte alla base scelto come tratto is_bridge piu' vicino al nodo OSM della cascata"
+  },
+  {
+   "check": "snap:park-boazzo-centrale",
+   "distM": 9.9,
+   "edgeClass": "service",
+   "osm": [
+    "w233164962@3"
+   ],
+   "ok": true
+  },
+  {
+   "check": "snap:park-boazzo-nord",
+   "distM": 9.5,
+   "edgeClass": "tertiary",
+   "osm": [
+    "r3253283@23",
+    "w177291728@7",
+    "w177291729@8",
+    "w228440323@11",
+    "w241093941@6",
+    "w241093951@3",
+    "w294955971@2",
+    "w294955972@3",
+    "w295246776@4",
+    "w295246777@4",
+    "w295246778@3",
+    "w295246779@3",
+    "w295246780@3",
+    "w295246781@3",
+    "w295246782@6",
+    "w295246783@4",
+    "w301129157@3",
+    "w301129158@3",
+    "w427503162@3",
+    "w427503163@3",
+    "w513589639@2",
+    "w513589640@2",
+    "w82509671@7",
+    "w82509678@9",
+    "w82509680@5",
+    "w82509681@3",
+    "w82552631@10",
+    "w82552634@6",
+    "w82552635@7",
+    "w82552636@5",
+    "w82552637@9",
+    "w82552638@8",
+    "w82970392@9",
+    "w82970397@6"
+   ],
+   "ok": true
+  },
+  {
+   "check": "snap:park-boazzo-centrale",
+   "distM": 9.9,
+   "edgeClass": "service",
+   "osm": [
+    "w233164962@3"
+   ],
+   "ok": true
+  },
+  {
+   "check": "snap:fall-leno",
+   "distM": 16.4,
+   "edgeClass": "path",
+   "osm": [
+    "w228119281@10",
+    "w228119283@3",
+    "w228119284@4",
+    "w228119286@3",
+    "w228119287@3",
+    "w228119289@2",
+    "w228119291@2"
+   ],
+   "ok": true
+  },
+  {
+   "check": "lunghezza andata (m)",
+   "value": 6095.6,
+   "expected": [
+    5500,
+    6600
+   ],
+   "ok": true,
+   "note": "Fonti secondarie: ~6 km a senso unico; 12,3 km a/r (portale Trentino); 3,5 km pista del lago fino a Malga Breguzzo"
+  },
+  {
+   "check": "pista lago fino a Malga Breguzzo (m)",
+   "value": 3494.0,
+   "expected": [
+    3000,
+    3900
+   ],
+   "ok": true,
+   "note": "Fonte secondaria: ~3,5 km"
+  },
+  {
+   "check": "tempo andata modello Tobler (min)",
+   "value": 98.9,
+   "expected": [
+    70,
+    120
+   ],
+   "ok": true,
+   "note": "Fonti secondarie: 1,3 h (78') / 1,5-1,75 h / 1h45 / 1,5-2 h per diga->rifugio"
+  },
+  {
+   "check": "dislivello positivo andata (m)",
+   "value": 162,
+   "expected": [
+    60,
+    220
+   ],
+   "ok": true,
+   "note": "Fonti secondarie: 95-170 m"
+  },
+  {
+   "check": "quota rifugio da DEM (m)",
+   "value": 1896.0,
+   "expected": [
+    1870,
+    1940
+   ],
+   "ok": true,
+   "note": "Fonti secondarie: 1887 / 1918 m"
+  },
+  {
+   "check": "quota Malga Breguzzo da DEM (m)",
+   "value": 1810.0,
+   "expected": [
+    1790,
+    1850
+   ],
+   "ok": true,
+   "note": "Fonte secondaria: 1826 m"
+  },
+  {
+   "check": "quota parcheggio diga da DEM (m)",
+   "value": 1807.0,
+   "expected": [
+    1780,
+    1870
+   ],
+   "ok": true,
+   "note": "Fonti secondarie: 1790-1847 m"
+  },
+  {
+   "check": "distanza cascata Chiese dal percorso (m)",
+   "value": 19,
+   "expected": [
+    0,
+    80
+   ],
+   "ok": true,
+   "note": "Attesa vicino a Malga Breguzzo"
+  },
+  {
+   "check": "lunghezza passeggiata Leno al ponte (m)",
+   "value": 345.0,
+   "expected": [
+    150,
+    700
+   ],
+   "ok": true,
+   "note": "Fonte secondaria: ~5 min a piedi dal parcheggio al ponte alla base"
+  },
+  {
+   "check": "lunghezza totale tratti-ponte sull'andata (m)",
+   "value": 44,
+   "expected": [
+    0,
+    200
+   ],
+   "ok": true,
+   "note": "I ponti sono brevi: un valore alto indicherebbe l'errore dei flag senza intervallo"
+  },
+  {
+   "check": "lunghezza variante sponda (m)",
+   "value": 6145.2,
+   "expected": [
+    5486.040000000001,
+    7314.72
+   ],
+   "ok": true,
+   "note": "Sponda opposta, lunghezza simile"
+  }
+ ]
+}

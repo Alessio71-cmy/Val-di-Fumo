@@ -1,0 +1,8 @@
+# Pipeline geodati (esecuzione offline-first: l'app NON usa Python a runtime).
+pyarrow>=15
+requests>=2.31
+numpy>=1.26
+pillow>=10
+shapely>=2.0
+pyproj>=3.6
+contourpy>=1.2

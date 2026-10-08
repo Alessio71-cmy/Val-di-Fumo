@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.vite/
+*.log
+.DS_Store
+# geodata pipeline caches (re-downloadable)
+scripts/geodata/.cache/
+scripts/geodata/.venv/
+__pycache__/
+*.pyc
